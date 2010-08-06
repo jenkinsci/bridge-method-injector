@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.infradna.tool</groupId>
   <artifactId>bridge-method-injector</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>maven-plugin</packaging>
 
   <name>bridge-method-injector</name>
@@ -44,11 +43,11 @@
                 <mkdir dir="target/test-classes/v1" />
                 <mkdir dir="target/test-classes/v2" />
                 <mkdir dir="target/test-classes/client" />
-                <javac source="1.6" target="1.6" srcdir="src/test/v1" destdir="target/test-classes/v1"/>
+                <javac source="1.6" target="1.6" srcdir="src/test/v1" destdir="target/test-classes/v1" />
                 <javac source="1.6" target="1.6" srcdir="src/test/v2" destdir="target/test-classes/v2" classpath="${maven.compile.classpath}">
                   <compilerarg value="-XprintProcessorInfo" />
                   <classpath>
-                    <pathelement path="target/classes"/>
+                    <pathelement path="target/classes" />
                     <path refid="maven.compile.classpath" />
                   </classpath>
                 </javac>
@@ -56,20 +55,20 @@
 
                 <!-- post process v2 -->
                 <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="target/test-classes/v2" failonerror="true">
-                  <classpath refid="maven.compile.classpath"/>
+                  <classpath refid="maven.compile.classpath" />
                 </java>
 
                 <java classname="Main" args="foo" failonerror="true">
                   <classpath>
-                    <pathelement path="target/test-classes/v1"/>
-                    <pathelement path="target/test-classes/client"/>
+                    <pathelement path="target/test-classes/v1" />
+                    <pathelement path="target/test-classes/client" />
                   </classpath>
                 </java>
                 
                 <java classname="Main" args="bar" failonerror="true">
                   <classpath>
-                    <pathelement path="target/test-classes/v2"/>
-                    <pathelement path="target/test-classes/client"/>
+                    <pathelement path="target/test-classes/v2" />
+                    <pathelement path="target/test-classes/client" />
                   </classpath>
                 </java>
 
@@ -77,13 +76,13 @@
                 <mkdir dir="target/test-classes/client-on-v2" />
                 <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client-on-v2">
                   <classpath>
-                    <pathelement path="target/test-classes/v2"/>
+                    <pathelement path="target/test-classes/v2" />
                   </classpath>
                 </javac>
                 <java classname="Main" args="bar" failonerror="true">
                   <classpath>
-                    <pathelement path="target/test-classes/v2"/>
-                    <pathelement path="target/test-classes/client-on-v2"/>
+                    <pathelement path="target/test-classes/v2" />
+                    <pathelement path="target/test-classes/client-on-v2" />
                   </classpath>
                 </java>
 
