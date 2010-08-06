@@ -27,6 +27,14 @@ import static org.objectweb.asm.Opcodes.*;
  * @author Kohsuke Kawaguchi
  */
 public class MethodInjector {
+    public void handleRecursively(File f) throws IOException {
+        if (f.isDirectory()) {
+            for (File c : f.listFiles())
+                handleRecursively(c);
+        } else if (f.getName().endsWith(".class"))
+            handle(f);
+    }
+
     public void handle(File classFile) throws IOException {
         FileInputStream in = new FileInputStream(classFile);
         byte[] image;
@@ -163,6 +171,13 @@ public class MethodInjector {
             for (SyntheticMethod m : syntheticMethods)
                 m.inject(cv);
             super.visitEnd();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        MethodInjector mi = new MethodInjector();
+        for (String a : args) {
+            mi.handleRecursively(new File(a));
         }
     }
 
