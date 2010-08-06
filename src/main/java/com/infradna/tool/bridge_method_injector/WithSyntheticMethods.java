@@ -1,4 +1,4 @@
-package com.infradna.tool.synthetic_method_injector;
+package com.infradna.tool.bridge_method_injector;
 
 import org.jvnet.hudson.annotation_indexer.Indexed;
 

@@ -1,4 +1,4 @@
-package com.infradna.tool.synthetic_method_injector;
+package com.infradna.tool.bridge_method_injector;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassAdapter;

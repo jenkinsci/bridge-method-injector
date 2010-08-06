@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.infradna.tool</groupId>
-  <artifactId>synthetic-method-injector</artifactId>
+  <artifactId>bridge-method-injector</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
-  <name>synthetic-method-injector</name>
+  <name>bridge-method-injector</name>
 
   <build>
     <plugins>
@@ -29,7 +29,7 @@
   </build>
 
   <scm>
-    <connection>scm:git:git@github.com:infradna/synthetic-method-injector.git</connection>
+    <connection>scm:git:git@github.com:infradna/bridge-method-injector.git</connection>
   </scm>
 
   <developers>

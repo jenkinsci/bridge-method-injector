@@ -1,4 +1,4 @@
-package com.infradna.tool.synthetic_method_injector;
+package com.infradna.tool.bridge_method_injector;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
