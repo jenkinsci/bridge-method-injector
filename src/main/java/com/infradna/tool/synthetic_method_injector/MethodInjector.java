@@ -129,8 +129,8 @@ public class MethodInjector {
          * Look for methods annotated with {@link WithSyntheticMethods}.
          */
         @Override
-        public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+        public MethodVisitor visitMethod(final int access, final String name, final String mdesc, final String signature, final String[] exceptions) {
+            MethodVisitor mv = super.visitMethod(access, name, mdesc, signature, exceptions);
             return new MethodAdapter(mv) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String adesc, boolean visible) {
@@ -144,7 +144,7 @@ public class MethodInjector {
                                 accept(av);
                                 for (Type t : (List<Type>)values.get(1))
                                     syntheticMethods.add(new SyntheticMethod(
-                                         access,name,desc,signature,exceptions,t
+                                         access,name,mdesc,signature,exceptions,t
                                     ));
                             }
                         };
