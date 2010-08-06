@@ -19,7 +19,33 @@
         </configuration>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.jvnet.wagon-svn</groupId>
+        <artifactId>wagon-svn</artifactId>
+        <version>1.9</version>
+      </extension>
+    </extensions>
   </build>
+
+  <scm>
+    <connection>scm:git:git@github.com:infradna/synthetic-method-injector.git</connection>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>kohsuke</id>
+      <name>Kohsuke Kawaguchi</name>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <distribution>repository</distribution>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
 
   <dependencies>
     <dependency>
@@ -44,4 +70,25 @@
       <version>2.0.1</version>
     </dependency>
   </dependencies>
+
+  <distributionManagement>
+    <repository>
+      <id>java.net-m2-repository</id>
+      <url>java-net:/maven2-repository/trunk/repository/</url>
+    </repository>
+    <!--<site>-->
+      <!--<id>kohsuke.org</id>-->
+      <!--<url>scp://kohsuke.org/home/kohsuke/kohsuke.org/github-api/</url>-->
+    <!--</site>-->
+  </distributionManagement>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+  
 </project>
