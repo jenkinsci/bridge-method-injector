@@ -60,6 +60,21 @@
                     <pathelement path="target/test-classes/client"/>
                   </classpath>
                 </java>
+
+                <!-- shouldn't be a problem to recompile client against the processed class files -->
+                <mkdir dir="target/test-classes/client-on-v2" />
+                <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client-on-v2">
+                  <classpath>
+                    <pathelement path="target/test-classes/v2"/>
+                  </classpath>
+                </javac>
+                <java classname="Main" args="bar" failonerror="true">
+                  <classpath>
+                    <pathelement path="target/test-classes/v2"/>
+                    <pathelement path="target/test-classes/client-on-v2"/>
+                  </classpath>
+                </java>
+
               </tasks>
             </configuration>
           </execution>
