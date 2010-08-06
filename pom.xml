@@ -28,6 +28,7 @@
             <phase>test</phase>
             <configuration>
               <tasks>
+                <delete dir="target/test-classes" />
                 <mkdir dir="target/test-classes/v1" />
                 <mkdir dir="target/test-classes/v2" />
                 <mkdir dir="target/test-classes/client" />
@@ -42,18 +43,18 @@
                 <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" />
 
                 <!-- post process v2 -->
-                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="target/test-classes/v2">
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="target/test-classes/v2" failonerror="true">
                   <classpath refid="maven.compile.classpath"/>
                 </java>
 
-                <java classname="Main" args="foo">
+                <java classname="Main" args="foo" failonerror="true">
                   <classpath>
                     <pathelement path="target/test-classes/v1"/>
                     <pathelement path="target/test-classes/client"/>
                   </classpath>
                 </java>
                 
-                <java classname="Main" args="bar">
+                <java classname="Main" args="bar" failonerror="true">
                   <classpath>
                     <pathelement path="target/test-classes/v2"/>
                     <pathelement path="target/test-classes/client"/>
