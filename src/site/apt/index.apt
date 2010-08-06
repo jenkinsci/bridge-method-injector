@@ -1,0 +1,48 @@
+What's this?
+
+  When you are writing a library, there are various restrictions about the kind of changes you can make, in order to maintain binary compatibility.
+
+  One such restriction is an inability to restrict the return type. Say in v1 of your library you had the following code:
+
+------------------------
+public Foo getFoo() {
+    return new Foo();
+}
+------------------------
+
+  In v2, say if you introduce a subtype of <<<Foo>>> called <<<FooSubType>>>, and you want to change the getFoo method to return <<<FooSubType>>>.
+
+------------------------
+public FooSubType getFoo() {
+    return new FooSubType();
+}
+------------------------
+
+  But if you do this, you break the binary compatibility. The clients need to be recompiled to be able to work with the new signature. This is where this bridge method injector can help. By adding an annotation like the following:
+
+------------------------
+@WithBridgeMethods(Foo.class)
+public FooSubType getFoo() {
+    return new FooSubType();
+}
+------------------------
+
+  ... and running the bytecode post processor, your class file will get the additional "bridge methods." In pseudo-code, it'll look like this:
+
+------------------------
+// your original definition
+@WithBridgeMethods(Foo.class)
+public FooSubType getFoo() {
+    return new FooSubType();
+}
+
+// added bridge method
+public Foo getFoo() {
+    invokevirtual this.getFoo()LFooSubType;
+    areturn
+}
+------------------------
+
+  Such code isn't allowed in Java source files, but class files allow that. With this addition, existing clients will continue to function.
+
+  In this way, you can evolve your classes more easily without breaking backward compatibility.
