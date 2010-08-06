@@ -17,5 +17,5 @@ import static java.lang.annotation.RetentionPolicy.*;
  */
 @Retention(CLASS)
 @Target(TYPE)
-public @interface SyntheticMethodsAdded {
+public @interface BridgeMethodsAdded {
 }

@@ -26,7 +26,7 @@ public class ProcessMojo extends AbstractMojo {
     private File classesDirectory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File index = new File(classesDirectory, "META-INF/annotations/" + WithSyntheticMethods.class.getName());
+        File index = new File(classesDirectory, "META-INF/annotations/" + WithBridgeMethods.class.getName());
         if (!index.exists()) {
             getLog().debug("Skipping because there's no "+index);
             return;
@@ -42,7 +42,7 @@ public class ProcessMojo extends AbstractMojo {
                 new MethodInjector().handle(classFile);
             }
         } catch (IOException e) {
-            throw new MojoExecutionException("Failed to process @WithSyntheticMethods",e);
+            throw new MojoExecutionException("Failed to process @WithBridgeMethods",e);
         } finally {
             try {
                 if (r!=null)    r.close();

@@ -22,6 +22,8 @@ import static org.objectweb.asm.ClassWriter.*;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * Injects bridge methods as per {@link WithBridgeMethods}.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class MethodInjector {
@@ -126,7 +128,7 @@ public class MethodInjector {
         }
 
         /**
-         * Look for methods annotated with {@link WithSyntheticMethods}.
+         * Look for methods annotated with {@link WithBridgeMethods}.
          */
         @Override
         public MethodVisitor visitMethod(final int access, final String name, final String mdesc, final String signature, final String[] exceptions) {
@@ -164,6 +166,6 @@ public class MethodInjector {
         }
     }
 
-    private static final String SYNTHETIC_METHODS_ADDED = Type.getDescriptor(SyntheticMethodsAdded.class);
-    private static final String WITH_SYNTHETIC_METHODS = Type.getDescriptor(WithSyntheticMethods.class);
+    private static final String SYNTHETIC_METHODS_ADDED = Type.getDescriptor(BridgeMethodsAdded.class);
+    private static final String WITH_SYNTHETIC_METHODS = Type.getDescriptor(WithBridgeMethods.class);
 }
