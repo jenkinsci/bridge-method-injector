@@ -31,7 +31,7 @@ public class MethodInjector {
         try {
             ClassReader cr = new ClassReader(new BufferedInputStream(in));
             ClassWriter cw = new ClassWriter(cr, COMPUTE_FRAMES | COMPUTE_MAXS);
-            cr.accept(new Transformer(cw),0);
+            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)),0);
             image = cw.toByteArray();
         } catch (AlreadyUpToDate _) {
             // no need to process this class. it's already up-to-date.
@@ -50,6 +50,18 @@ public class MethodInjector {
      * Thrown to indicate that there's no need to re-process this class file.
      */
     class AlreadyUpToDate extends RuntimeException {}
+
+    static class ClassAnnotationInjectorImpl extends ClassAnnotationInjector {
+        ClassAnnotationInjectorImpl(ClassVisitor cv) {
+            super(cv);
+        }
+
+        @Override
+        protected void emit() {
+            AnnotationVisitor av = cv.visitAnnotation(SYNTHETIC_METHODS_ADDED, false);
+            av.visitEnd();
+        }
+    }
 
     class Transformer extends ClassAdapter {
         private String internalClassName;
@@ -80,7 +92,7 @@ public class MethodInjector {
              * Injects a synthetic method and send it to cv.
              */
             public void inject(ClassVisitor cv) {
-                Type[] paramTypes = Type.getArgumentTypes(originalSignature);
+                Type[] paramTypes = Type.getArgumentTypes(desc);
 
                 MethodVisitor mv = cv.visitMethod(access | ACC_SYNTHETIC | ACC_BRIDGE, name,
                         Type.getMethodDescriptor(returnType, paramTypes), null/*TODO:is this really correct?*/, exceptions);
@@ -113,6 +125,9 @@ public class MethodInjector {
             return super.visitAnnotation(desc, visible);
         }
 
+        /**
+         * Look for methods annotated with {@link WithSyntheticMethods}.
+         */
         @Override
         public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -120,7 +135,7 @@ public class MethodInjector {
                 @Override
                 public AnnotationVisitor visitAnnotation(String adesc, boolean visible) {
                     final AnnotationVisitor av = super.visitAnnotation(adesc, visible);
-                    if (desc.equals(WITH_SYNTHETIC_METHODS))
+                    if (adesc.equals(WITH_SYNTHETIC_METHODS))
                         return new AnnotationNode(adesc) {
                             @Override
                             public void visitEnd() {
@@ -138,6 +153,9 @@ public class MethodInjector {
             };
         }
 
+        /**
+         * Inject methods at the end.
+         */
         @Override
         public void visitEnd() {
             for (SyntheticMethod m : syntheticMethods)
