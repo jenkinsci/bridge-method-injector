@@ -159,10 +159,10 @@
       <id>java.net-m2-repository</id>
       <url>java-net:/maven2-repository/trunk/repository/</url>
     </repository>
-    <!--<site>-->
-      <!--<id>kohsuke.org</id>-->
-      <!--<url>scp://kohsuke.org/home/kohsuke/kohsuke.org/github-api/</url>-->
-    <!--</site>-->
+    <site>
+      <id>infradna.com</id>
+      <url>scp://www-data@infradna.com/var/www/${project.artifactId}.infradna.com</url>
+    </site>
   </distributionManagement>
 
   <reporting>
