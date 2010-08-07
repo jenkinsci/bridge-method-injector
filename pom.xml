@@ -7,6 +7,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>bridge-method-injector</name>
+  <description>Evolve your classes without breaking compatibility</description>
 
   <build>
     <plugins>

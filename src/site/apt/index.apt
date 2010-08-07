@@ -46,3 +46,40 @@ public Foo getFoo() {
   Such code isn't allowed in Java source files, but class files allow that. With this addition, existing clients will continue to function.
 
   In this way, you can evolve your classes more easily without breaking backward compatibility.
+
+
+Integration into Your Build
+
+  Add the following dependency in your POM. This dependency is only necessary during the compile time and not runtime, so an optional dependency is suffice.
+
+------------------------
+    <dependency>
+      <groupId>com.infradna.tool</groupId>
+      <artifactId>bridge-method-injector</artifactId>
+      <version>1.0</version>
+      <optional>true</optional>
+    </dependency>
+------------------------
+
+  Then put the following fragment in your build to have the byte-code post processor kick in to inject the necessary bridge methods.
+
+------------------------
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.infradna.tool</groupId>
+        <artifactId>bridge-method-injector</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+------------------------
+
+  The artifacts are deployed to {{{http://maven.dyndns.org/2/com/infradna/tool/bridge-method-injector/}java.net Maven2 repository}}.
