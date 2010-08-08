@@ -58,7 +58,7 @@
                 <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" />
 
                 <!-- post process v2 -->
-                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="target/test-classes/v2" failonerror="true">
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="${project.basedir}/target/test-classes/v2" failonerror="true">
                   <classpath refid="maven.compile.classpath" />
                 </java>
 
@@ -137,16 +137,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bridge-method-annotation</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>asm</groupId>
       <artifactId>asm-debug-all</artifactId>
       <version>3.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jvnet.hudson</groupId>
-      <artifactId>annotation-indexer</artifactId>
-      <version>1.2</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
