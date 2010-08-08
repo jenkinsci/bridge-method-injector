@@ -156,25 +156,5 @@
       <version>2.0.1</version>
     </dependency>
   </dependencies>
-
-  <distributionManagement>
-    <repository>
-      <id>java.net-m2-repository</id>
-      <url>java-net:/maven2-repository/trunk/repository/</url>
-    </repository>
-    <site>
-      <id>infradna.com</id>
-      <url>scp://www-data@infradna.com/var/www/${project.artifactId}.infradna.com</url>
-    </site>
-  </distributionManagement>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
   
 </project>
