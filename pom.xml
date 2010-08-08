@@ -71,7 +71,7 @@
     </repository>
     <site>
       <id>infradna.com</id>
-      <url>scp://www-data@infradna.com/var/www/${project.artifactId}.infradna.com</url>
+      <url>scp://www-data@infradna.com/var/www/bridge-method-injector.infradna.com</url>
     </site>
   </distributionManagement>
 
