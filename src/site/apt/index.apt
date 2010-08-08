@@ -55,8 +55,8 @@ Integration into Your Build
 ------------------------
     <dependency>
       <groupId>com.infradna.tool</groupId>
-      <artifactId>bridge-method-injector</artifactId>
-      <version>1.0</version>
+      <artifactId>bridge-method-annotation</artifactId>
+      <version>1.2</version>
       <optional>true</optional>
     </dependency>
 ------------------------
@@ -69,7 +69,7 @@ Integration into Your Build
       <plugin>
         <groupId>com.infradna.tool</groupId>
         <artifactId>bridge-method-injector</artifactId>
-        <version>1.0</version>
+        <version>1.2</version>
         <executions>
           <execution>
             <goals>
