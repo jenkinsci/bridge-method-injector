@@ -6,7 +6,7 @@
   <version>1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>bridge-method-injector</name>
+  <name>Bridge Method Injection Parent POM</name>
   <description>Evolve your classes without breaking compatibility</description>
 
   <modules>

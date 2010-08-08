@@ -7,6 +7,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>bridge-method-annotation</artifactId>
+  <name>Bridge method injection annotations</name>
 
   <dependencies>
     <dependency>
