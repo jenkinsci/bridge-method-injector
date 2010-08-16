@@ -63,7 +63,7 @@ public class MethodInjector {
         byte[] image;
         try {
             ClassReader cr = new ClassReader(new BufferedInputStream(in));
-            ClassWriter cw = new ClassWriter(cr, COMPUTE_FRAMES | COMPUTE_MAXS);
+            ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
             cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)),0);
             image = cw.toByteArray();
         } catch (AlreadyUpToDate _) {
