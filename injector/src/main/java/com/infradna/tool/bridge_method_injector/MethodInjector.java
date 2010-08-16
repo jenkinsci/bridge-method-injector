@@ -69,6 +69,10 @@ public class MethodInjector {
         } catch (AlreadyUpToDate _) {
             // no need to process this class. it's already up-to-date.
             return;
+        } catch (IOException e) {
+            throw (IOException)new IOException("Failed to process "+classFile).initCause(e);
+        } catch (RuntimeException e) {
+            throw (IOException)new IOException("Failed to process "+classFile).initCause(e);
         } finally {
             in.close();
         }
