@@ -5,4 +5,9 @@ public class Foo {
     public String getMessage() {
         return "bar";
     }
+
+    @WithBridgeMethods(Object.class)
+    public static String getStaticMessage() {
+      return "bar";
+    }
 }
