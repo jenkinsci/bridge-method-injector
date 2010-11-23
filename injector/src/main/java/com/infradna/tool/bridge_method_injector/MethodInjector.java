@@ -86,7 +86,9 @@ public class MethodInjector {
     /**
      * Thrown to indicate that there's no need to re-process this class file.
      */
-    class AlreadyUpToDate extends RuntimeException {}
+    class AlreadyUpToDate extends RuntimeException {
+      private static final long serialVersionUID = 1L;
+    }
 
     static class ClassAnnotationInjectorImpl extends ClassAnnotationInjector {
         ClassAnnotationInjectorImpl(ClassVisitor cv) {
