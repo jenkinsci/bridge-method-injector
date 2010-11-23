@@ -65,5 +65,5 @@ public @interface WithBridgeMethods {
      * Specifies the return types. These types must be assignable to the actual
      * method return type.
      */
-    Class[] value();
+    Class<?>[] value();
 }
