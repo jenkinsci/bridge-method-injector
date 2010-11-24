@@ -31,6 +31,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.EmptyVisitor;
 import org.objectweb.asm.tree.AnnotationNode;
 
 import java.io.BufferedInputStream;
@@ -102,6 +103,22 @@ public class MethodInjector {
         }
     }
 
+    private static class WithBridgeMethodsAnnotationVisitor extends EmptyVisitor {
+      private boolean castRequired = false;
+      private List<Type> types = new ArrayList<Type>();
+
+      @Override
+      public void visit(String name, Object value) {
+        if ("castRequired".equals(name) && value instanceof Boolean) {
+          castRequired = (Boolean) value;
+        }
+        if (value instanceof Type) {
+          // assume this is a member of the array of classes named "value" in WithBridgeMethods
+          types.add((Type) value);
+        }
+      }
+    }
+
     class Transformer extends ClassAdapter {
         private String internalClassName;
         /**
@@ -115,16 +132,18 @@ public class MethodInjector {
             final String desc;
             final String originalSignature;
             final String[] exceptions;
+            final boolean castRequired;
 
             final Type returnType;
 
-            SyntheticMethod(int access, String name, String desc, String originalSignature, String[] exceptions, Type returnType) {
+            SyntheticMethod(int access, String name, String desc, String originalSignature, String[] exceptions, Type returnType, boolean castRequired) {
                 this.access = access;
                 this.name = name;
                 this.desc = desc;
                 this.originalSignature = originalSignature;
                 this.exceptions = exceptions;
                 this.returnType = returnType;
+                this.castRequired = castRequired;
             }
 
             /**
@@ -148,6 +167,9 @@ public class MethodInjector {
                 }
                 mv.visitMethodInsn(
                   isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
+                if (castRequired) {
+                  mv.visitTypeInsn(CHECKCAST, returnType.getInternalName());
+                }
                 mv.visitInsn(returnType.getOpcode(IRETURN));
                 mv.visitMaxs(sz,0);
                 mv.visitEnd();
@@ -188,9 +210,12 @@ public class MethodInjector {
                                 super.visitEnd();
                                 // forward this annotation to the receiver
                                 accept(av);
-                                for (Type t : (List<Type>)values.get(1))
+                                WithBridgeMethodsAnnotationVisitor annotationVisitor =
+                                  new WithBridgeMethodsAnnotationVisitor();
+                                accept(annotationVisitor);
+                                for (Type type : annotationVisitor.types)
                                     syntheticMethods.add(new SyntheticMethod(
-                                         access,name,mdesc,signature,exceptions,t
+                                         access,name,mdesc,signature,exceptions,type, annotationVisitor.castRequired
                                     ));
                             }
                         };

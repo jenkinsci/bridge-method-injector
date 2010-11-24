@@ -10,4 +10,9 @@ public class Foo {
     public static String getStaticMessage() {
       return "bar";
     }
+
+    @WithBridgeMethods(value=String.class, castRequired=true)
+    public static <T> T methodToWiden(Class<T> clazz) {
+      return clazz.cast("bar");
+    }
 }

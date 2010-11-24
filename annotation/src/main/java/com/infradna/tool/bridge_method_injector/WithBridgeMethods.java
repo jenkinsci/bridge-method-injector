@@ -63,7 +63,15 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 public @interface WithBridgeMethods {
     /**
      * Specifies the return types. These types must be assignable to the actual
-     * method return type.
+     * method return type, or {@link #castRequired()} should be set to true.
      */
     Class<?>[] value();
+
+    /**
+     * Specifies whether the injected bridge methods should perform a cast prior to returning.  Only
+     * set this to true when it is known that calls to the bridge methods will in fact return
+     * types assignable to the actual method return type, even though declared return types are
+     * not assignable to the actual method return type.
+     */
+    boolean castRequired() default false;
 }

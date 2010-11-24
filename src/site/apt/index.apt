@@ -47,6 +47,47 @@ public Foo getFoo() {
 
   In this way, you can evolve your classes more easily without breaking backward compatibility.
 
+  In some cases, it's necessary to widen the return type of a method, but in a way that legacy calls would still return instances of the original type.  In this case, add castRequired to the annotation.  For example, suppose that v1 had a method:
+
+------------------------
+public <T extends FooSubType> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+------------------------
+
+  and in v2 you wanted to widen this method to:
+
+------------------------
+public <T extends Foo> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+------------------------
+
+  The annotation to provide backwards compatibility would be:
+
+------------------------
+@WithBridgeMethods(value=FooSubType.class, castRequired=true)
+public <T extends Foo> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+------------------------
+
+  Running the bytecode post processor, the resulting class file will look like the following pseudo-code:
+
+------------------------
+// your original definition
+@WithBridgeMethods(value=FooSubType.class, castRequired=true)
+public <T extends Foo> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+
+// added bridge method
+public FooSubType createFoo(Class clazz) {
+    invokevirtual this.createFoo(java/lang/Class)LFoo
+    checkcast FooSubType
+    areturn
+}
+------------------------
 
 Integration into Your Build
 
