@@ -54,6 +54,27 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * }
  * </pre>
  *
+ * <p>
+ *
+ * In some cases, it's necessary to widen the return type of a method, but in a way that legacy
+ * calls would still return instances of the original type. In this case, add
+ * {@link #castRequired() castRequired=true} to the annotation. For example, if you have the
+ * following code:
+ * <pre>
+ * &#64;WithBridgeMethods(value=FooSubType.class, castRequired=true)
+ * public &lt;T extends Foo&gt; createFoo(Class&lt;T&gt; clazz) {
+ *   return clazz.newInstance();
+ * }
+ * </pre>
+ * <p>
+ * The Maven mojo will insert the following bridge method:
+ *
+ * <pre>
+ * public FooSubType createFoo(Class clazz) {
+ *   return (FooSubType) createFoo(clazz); // invokeVirtual to createFoo that returns Foo
+ * }
+ * </pre>
+
  * @author Kohsuke Kawaguchi
  */
 @Retention(CLASS)
@@ -72,6 +93,8 @@ public @interface WithBridgeMethods {
      * set this to true when it is known that calls to the bridge methods will in fact return
      * types assignable to the actual method return type, even though declared return types are
      * not assignable to the actual method return type.
+     *
+     * @since 1.4
      */
     boolean castRequired() default false;
 }
