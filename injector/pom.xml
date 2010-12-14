@@ -47,7 +47,18 @@
                 <mkdir dir="target/test-classes/v1" />
                 <mkdir dir="target/test-classes/v2" />
                 <mkdir dir="target/test-classes/client" />
+
+                <!-- basic sanity. unmodified client and v1 should work as expected -->
                 <javac source="1.6" target="1.6" srcdir="src/test/v1" destdir="target/test-classes/v1" />
+                <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" />
+                <java classname="Main" args="foo" failonerror="true">
+                  <classpath>
+                    <pathelement path="target/test-classes/v1" />
+                    <pathelement path="target/test-classes/client" />
+                  </classpath>
+                </java>
+
+                <!-- compile v2 -->
                 <javac source="1.6" target="1.6" srcdir="src/test/v2" destdir="target/test-classes/v2" classpath="${maven.compile.classpath}">
                   <compilerarg value="-XprintProcessorInfo" />
                   <classpath>
@@ -55,20 +66,13 @@
                     <path refid="maven.compile.classpath" />
                   </classpath>
                 </javac>
-                <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" />
 
                 <!-- post process v2 -->
                 <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="${project.basedir}/target/test-classes/v2" failonerror="true">
                   <classpath refid="maven.compile.classpath" />
                 </java>
 
-                <java classname="Main" args="foo" failonerror="true">
-                  <classpath>
-                    <pathelement path="target/test-classes/v1" />
-                    <pathelement path="target/test-classes/client" />
-                  </classpath>
-                </java>
-                
+                <!-- verify that unmodified client code continue to work with v2 binary -->
                 <java classname="Main" args="bar" failonerror="true">
                   <classpath>
                     <pathelement path="target/test-classes/v2" />
@@ -76,7 +80,8 @@
                   </classpath>
                 </java>
 
-                <!-- shouldn't be a problem to recompile client against the processed class files -->
+                <!-- was testing source compatibility, but with widening change it won't work anymore -->
+                <!--
                 <mkdir dir="target/test-classes/client-on-v2" />
                 <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client-on-v2">
                   <classpath>
@@ -89,7 +94,7 @@
                     <pathelement path="target/test-classes/client-on-v2" />
                   </classpath>
                 </java>
-
+                -->
               </tasks>
             </configuration>
           </execution>

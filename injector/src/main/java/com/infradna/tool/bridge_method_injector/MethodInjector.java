@@ -154,24 +154,26 @@ public class MethodInjector {
 
                 MethodVisitor mv = cv.visitMethod(access | ACC_SYNTHETIC | ACC_BRIDGE, name,
                         Type.getMethodDescriptor(returnType, paramTypes), null/*TODO:is this really correct?*/, exceptions);
-                mv.visitCode();
-                int sz = 0;
-                boolean isStatic = (access & ACC_STATIC) != 0;
-                if (!isStatic) {
-                  mv.visitVarInsn(ALOAD,0);
-                  sz++;
+                if ((access&ACC_ABSTRACT)==0) {
+                    mv.visitCode();
+                    int sz = 0;
+                    boolean isStatic = (access & ACC_STATIC) != 0;
+                    if (!isStatic) {
+                      mv.visitVarInsn(ALOAD,0);
+                      sz++;
+                    }
+                    for (Type p : paramTypes) {
+                        mv.visitVarInsn(p.getOpcode(ILOAD), sz);
+                        sz += p.getSize();
+                    }
+                    mv.visitMethodInsn(
+                      isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
+                    if (castRequired) {
+                      mv.visitTypeInsn(CHECKCAST, returnType.getInternalName());
+                    }
+                    mv.visitInsn(returnType.getOpcode(IRETURN));
+                    mv.visitMaxs(sz,0);
                 }
-                for (Type p : paramTypes) {
-                    mv.visitVarInsn(p.getOpcode(ILOAD), sz);
-                    sz += p.getSize();
-                }
-                mv.visitMethodInsn(
-                  isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
-                if (castRequired) {
-                  mv.visitTypeInsn(CHECKCAST, returnType.getInternalName());
-                }
-                mv.visitInsn(returnType.getOpcode(IRETURN));
-                mv.visitMaxs(sz,0);
                 mv.visitEnd();
             }
         }

@@ -1,8 +1,16 @@
 import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 
-public class Foo {
+public class Foo implements IFoo {
     @WithBridgeMethods(Object.class)
     public String getMessage() {
+        return "bar";
+    }
+
+    /**
+     * Widening String to Object.
+     */
+    @WithBridgeMethods(value=String.class,castRequired=true)
+    public Object getString() {
         return "bar";
     }
 

@@ -47,7 +47,12 @@ public Foo getFoo() {
 
   In this way, you can evolve your classes more easily without breaking backward compatibility.
 
-  In some cases, it's necessary to widen the return type of a method, but in a way that legacy calls would still return instances of the original type.  In this case, add castRequired to the annotation.  For example, suppose that v1 had a method:
+Widening the return type
+
+  In some cases, it's convenient to widen the return type of a method. As this is potentially a type-unsafe change
+  (as the callee can return a type that's not assignable to what the caller expects), so
+  you as a programmer explicitly need to tell us that you know what you are doing by adding
+  <<<castRequired>>> to the annotation.  For example, suppose that v1 had a method:
 
 ------------------------
 public <T extends FooSubType> createFoo(Class<T> clazz) {
@@ -55,7 +60,8 @@ public <T extends FooSubType> createFoo(Class<T> clazz) {
 }
 ------------------------
 
-  and in v2 you wanted to widen this method to:
+  and in v2 you wanted to widen this method to. Note that you can prove that this is still type-safe, while
+  your compile cannot:
 
 ------------------------
 public <T extends Foo> createFoo(Class<T> clazz) {
@@ -88,6 +94,13 @@ public FooSubType createFoo(Class clazz) {
     areturn
 }
 ------------------------
+
+Bridge Methods and Interfaces
+
+  You can use <<<@WithBridgeMethods>>> with interfaces, too. However, making this work correctly is tricky,
+  as you have to ensure that bridge methods are implemented on all the classes that implement the interface,
+  for example by adding <<<@WithBridgeMethods>>> on every implementation of the method in question,
+  or by introducing a base class that provides a bridge method.
 
 Integration into Your Build
 
