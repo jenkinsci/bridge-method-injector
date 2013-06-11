@@ -151,6 +151,7 @@ public class MethodInjector {
              */
             public void inject(ClassVisitor cv) {
                 Type[] paramTypes = Type.getArgumentTypes(desc);
+                Type originalReturnType = Type.getReturnType(desc);
 
                 MethodVisitor mv = cv.visitMethod(access | ACC_SYNTHETIC | ACC_BRIDGE, name,
                         Type.getMethodDescriptor(returnType, paramTypes), null/*TODO:is this really correct?*/, exceptions);
@@ -169,6 +170,19 @@ public class MethodInjector {
                   isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
                 if (castRequired) {
                   mv.visitTypeInsn(CHECKCAST, returnType.getInternalName());
+                }
+                if (returnType.equals(Type.VOID_TYPE)) {
+                    // bridge to void, which means disregard the return value from the original method
+                    switch (originalReturnType.getSize()) {
+                    case 1:
+                        mv.visitInsn(originalReturnType.getOpcode(POP));
+                        break;
+                    case 2:
+                        mv.visitInsn(originalReturnType.getOpcode(POP2));
+                        break;
+                    default:
+                        throw new AssertionError("Unexpected operand size: "+originalReturnType);
+                    }
                 }
                 mv.visitInsn(returnType.getOpcode(IRETURN));
                 mv.visitMaxs(sz,0);
