@@ -171,7 +171,7 @@ public class MethodInjector {
                 if (castRequired) {
                   mv.visitTypeInsn(CHECKCAST, returnType.getInternalName());
                 }
-                if (returnType.equals(Type.VOID_TYPE)) {
+                if (returnType.equals(Type.VOID_TYPE) || returnType.getClassName().equals("java.lang.Void")) {
                     // bridge to void, which means disregard the return value from the original method
                     switch (originalReturnType.getSize()) {
                     case 1:
