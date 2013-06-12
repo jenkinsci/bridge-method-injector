@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.infradna.tool</groupId>
     <artifactId>bridge-method-injector-parent</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.7-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>bridge-method-injector</artifactId>
