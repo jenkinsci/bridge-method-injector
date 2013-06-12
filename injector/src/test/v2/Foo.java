@@ -23,4 +23,9 @@ public class Foo implements IFoo {
     public static <T> T methodToWiden(Class<T> clazz) {
       return clazz.cast("bar");
     }
+
+    @WithBridgeMethods(void.class)
+    public static boolean hello() {
+        return true;
+    }
 }
