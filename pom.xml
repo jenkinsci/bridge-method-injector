@@ -69,10 +69,12 @@
       <id>maven.jenkins-ci.org</id>
       <url>http://maven.jenkins-ci.org:8081/content/repositories/releases</url>
     </repository>
+    <!-- doesn't work with Maven3
     <site>
       <id>infradna.com</id>
       <url>scp://www-data@infradna.com/var/www/bridge-method-injector.infradna.com</url>
     </site>
+  -->
   </distributionManagement>
 
   <reporting>
