@@ -2,6 +2,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         // invocation of void method. verify that it runs without error
         Foo.hello();
+        Foo.hello2();
 
         Object o = new Foo().getMessage();
         assertEquals(args[0],o);

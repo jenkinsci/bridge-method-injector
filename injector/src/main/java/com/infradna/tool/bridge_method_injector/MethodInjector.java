@@ -177,10 +177,10 @@ public class MethodInjector {
                         // bridge to void, which means disregard the return value from the original method
                         switch (originalReturnType.getSize()) {
                         case 1:
-                            mv.visitInsn(originalReturnType.getOpcode(POP));
+                            mv.visitInsn(POP);
                             break;
                         case 2:
-                            mv.visitInsn(originalReturnType.getOpcode(POP2));
+                            mv.visitInsn(POP2);
                             break;
                         default:
                             throw new AssertionError("Unexpected operand size: "+originalReturnType);

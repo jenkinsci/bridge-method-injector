@@ -22,4 +22,6 @@ public class Foo implements IFoo {
     }
 
     public static void hello() {}
+
+    public static void hello2() {}
 }

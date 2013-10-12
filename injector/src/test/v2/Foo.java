@@ -28,4 +28,9 @@ public class Foo implements IFoo {
     public static boolean hello() {
         return true;
     }
+
+    @WithBridgeMethods(void.class)
+    public static String hello2() {
+        return "hello2";
+    }
 }
