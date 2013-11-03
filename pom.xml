@@ -8,6 +8,7 @@
 
   <name>Bridge Method Injection Parent POM</name>
   <description>Evolve your classes without breaking compatibility</description>
+  <url>http://bridge-method-injector.infradna.com/</url>
 
   <modules>
     <module>annotation</module>
@@ -60,6 +61,7 @@
 
   <scm>
     <connection>scm:git:git@github.com:infradna/bridge-method-injector.git</connection>
+    <url>https://github.com/infradna/bridge-method-injector</url>
   </scm>
 
   <developers>
