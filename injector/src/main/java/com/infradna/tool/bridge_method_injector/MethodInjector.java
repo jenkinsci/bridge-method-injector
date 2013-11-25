@@ -23,16 +23,19 @@
  */
 package com.infradna.tool.bridge_method_injector;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.EmptyVisitor;
-import org.objectweb.asm.tree.AnnotationNode;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
+import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.POP2;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -42,8 +45,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.objectweb.asm.ClassWriter.*;
-import static org.objectweb.asm.Opcodes.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * Injects bridge methods as per {@link WithBridgeMethods}.
@@ -103,23 +112,39 @@ public class MethodInjector {
         }
     }
 
-    private static class WithBridgeMethodsAnnotationVisitor extends EmptyVisitor {
-      private boolean castRequired = false;
-      private List<Type> types = new ArrayList<Type>();
+    private static class WithBridgeMethodsAnnotationVisitor extends AnnotationVisitor {
+      protected boolean castRequired = false;
+      protected List<Type> types = new ArrayList<Type>();
+      
+      public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
+        super(Opcodes.ASM4, av);
+      }
+
+      @Override
+      public AnnotationVisitor visitArray(String name) {
+        return new AnnotationVisitor(Opcodes.ASM4, super.visitArray(name)) {
+           
+            public void visit(String name, Object value) {
+                if (value instanceof Type) {
+                  // assume this is a member of the array of classes named "value" in WithBridgeMethods
+                  types.add((Type) value);
+                }
+                super.visit(name, value);
+            }
+
+        };
+      }
 
       @Override
       public void visit(String name, Object value) {
         if ("castRequired".equals(name) && value instanceof Boolean) {
           castRequired = (Boolean) value;
         }
-        if (value instanceof Type) {
-          // assume this is a member of the array of classes named "value" in WithBridgeMethods
-          types.add((Type) value);
-        }
+        super.visit(name, value);
       }
     }
 
-    class Transformer extends ClassAdapter {
+    class Transformer extends ClassVisitor {
         private String internalClassName;
         /**
          * Synthetic methods to be generated.
@@ -153,9 +178,12 @@ public class MethodInjector {
                 Type[] paramTypes = Type.getArgumentTypes(desc);
                 Type originalReturnType = Type.getReturnType(desc);
 
-                MethodVisitor mv = cv.visitMethod(access | ACC_SYNTHETIC | ACC_BRIDGE, name,
-                        Type.getMethodDescriptor(returnType, paramTypes), null/*TODO:is this really correct?*/, exceptions);
+                int access = this.access | ACC_SYNTHETIC | ACC_BRIDGE;
+                String methodDescriptor = Type.getMethodDescriptor(returnType, paramTypes);
+                MethodVisitor mv = cv.visitMethod(access, name,
+                        methodDescriptor, null/*TODO:is this really correct?*/, exceptions);
                 if ((access&ACC_ABSTRACT)==0) {
+                    GeneratorAdapter ga = new GeneratorAdapter(mv, access, name, methodDescriptor);
                     mv.visitCode();
                     int sz = 0;
                     boolean isStatic = (access & ACC_STATIC) != 0;
@@ -171,7 +199,9 @@ public class MethodInjector {
                     mv.visitMethodInsn(
                       isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
                     if (castRequired) {
-                      mv.visitTypeInsn(CHECKCAST, returnType.getInternalName());
+                        ga.unbox(returnType);
+                    } else {
+                        ga.box(originalReturnType);
                     }
                     if (returnType.equals(Type.VOID_TYPE) || returnType.getClassName().equals("java.lang.Void")) {
                         // bridge to void, which means disregard the return value from the original method
@@ -194,7 +224,7 @@ public class MethodInjector {
         }
 
         Transformer(ClassVisitor cv) {
-            super(cv);
+            super(Opcodes.ASM4, cv);
         }
 
         @Override
@@ -216,23 +246,19 @@ public class MethodInjector {
         @Override
         public MethodVisitor visitMethod(final int access, final String name, final String mdesc, final String signature, final String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, mdesc, signature, exceptions);
-            return new MethodAdapter(mv) {
+            return new MethodVisitor(Opcodes.ASM4, mv) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String adesc, boolean visible) {
-                    final AnnotationVisitor av = super.visitAnnotation(adesc, visible);
+                    AnnotationVisitor av = super.visitAnnotation(adesc, visible);
                     if (adesc.equals(WITH_SYNTHETIC_METHODS))
-                        return new AnnotationNode(adesc) {
+                        return new WithBridgeMethodsAnnotationVisitor(av) {
+                        
                             @Override
                             public void visitEnd() {
-                                super.visitEnd();
-                                // forward this annotation to the receiver
-                                accept(av);
-                                WithBridgeMethodsAnnotationVisitor annotationVisitor =
-                                  new WithBridgeMethodsAnnotationVisitor();
-                                accept(annotationVisitor);
-                                for (Type type : annotationVisitor.types)
+                                super.visitEnd(); 
+                                for (Type type : this.types)
                                     syntheticMethods.add(new SyntheticMethod(
-                                         access,name,mdesc,signature,exceptions,type, annotationVisitor.castRequired
+                                         access,name,mdesc,signature,exceptions,type, this.castRequired
                                     ));
                             }
                         };

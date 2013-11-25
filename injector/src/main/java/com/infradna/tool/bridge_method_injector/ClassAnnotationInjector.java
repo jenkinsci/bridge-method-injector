@@ -23,19 +23,19 @@
  */
 package com.infradna.tool.bridge_method_injector;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * Adds class annotations.
  *
  * @author Kohsuke Kawaguchi
  */
-abstract class ClassAnnotationInjector extends ClassAdapter {
+abstract class ClassAnnotationInjector extends ClassVisitor {
     ClassAnnotationInjector(ClassVisitor cv) {
-        super(cv);
+        super(Opcodes.ASM4, cv);
     }
 
     private boolean emitted = false;

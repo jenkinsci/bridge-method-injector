@@ -3,6 +3,8 @@ public class Main {
         // invocation of void method. verify that it runs without error
         Foo.hello();
         Foo.hello2();
+        Foo.unbox();
+        Foo.box();
 
         Object o = new Foo().getMessage();
         assertEquals(args[0],o);

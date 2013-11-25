@@ -33,4 +33,14 @@ public class Foo implements IFoo {
     public static String hello2() {
         return "hello2";
     }
+    
+    @WithBridgeMethods(value=int.class, castRequired=true)
+    public static Integer unbox() {
+        return Integer.MIN_VALUE;
+    }
+    
+    @WithBridgeMethods(value=Integer.class)
+    public static int box() {
+        return Integer.MAX_VALUE;
+    }
 }
