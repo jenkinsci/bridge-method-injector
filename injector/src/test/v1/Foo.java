@@ -24,4 +24,8 @@ public class Foo implements IFoo {
     public static void hello() {}
 
     public static void hello2() {}
+    
+    public static int unbox() {return Integer.MIN_VALUE;}
+    
+    public static int box() {return Integer.MAX_VALUE;}
 }
