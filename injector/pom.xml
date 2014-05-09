@@ -47,6 +47,7 @@
                 <mkdir dir="target/test-classes/v1" />
                 <mkdir dir="target/test-classes/v2" />
                 <mkdir dir="target/test-classes/client" />
+                <mkdir dir="target/test-classes/synthetics" />
 
                 <!-- basic sanity. unmodified client and v1 should work as expected -->
                 <javac source="1.6" target="1.6" srcdir="src/test/v1" destdir="target/test-classes/v1" />
@@ -78,6 +79,20 @@
                     <pathelement path="target/test-classes/v2" />
                     <pathelement path="target/test-classes/client" />
                   </classpath>
+                </java>
+
+                <!-- compile synthetics -->
+                <javac source="1.6" target="1.6" srcdir="src/test/synthetics" destdir="target/test-classes/synthetics" classpath="${maven.compile.classpath}">
+                  <compilerarg value="-XprintProcessorInfo" />
+                  <classpath>
+                    <pathelement path="target/classes" />
+                    <path refid="maven.compile.classpath" />
+                  </classpath>
+                </javac>
+
+                <!-- post process synthetics -->
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" args="${project.basedir}/target/test-classes/synthetics" failonerror="true">
+                  <classpath refid="maven.compile.classpath" />
                 </java>
 
                 <!-- was testing source compatibility, but with widening change it won't work anymore -->
