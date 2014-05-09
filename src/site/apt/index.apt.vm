@@ -104,14 +104,15 @@ Bridge Methods and Interfaces
 
 Integration into Your Build
 
-  Add the following dependency in your POM. This dependency is only necessary during the compile time and not runtime, so an optional dependency is suffice.
+  Add the following dependency in your POM. (This dependency is not needed at runtime, but it is necessary
+  for compilation of source code that transitively depend on this, so it is the simplest to just treat
+  this like a regular library dependency)
 
 ------------------------
     <dependency>
       <groupId>com.infradna.tool</groupId>
       <artifactId>bridge-method-annotation</artifactId>
-      <version>1.4</version>
-      <optional>true</optional>
+      <version>1.12</version>
     </dependency>
 ------------------------
 
