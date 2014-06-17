@@ -250,7 +250,7 @@ public class MethodInjector {
                 @Override
                 public AnnotationVisitor visitAnnotation(String adesc, boolean visible) {
                     AnnotationVisitor av = super.visitAnnotation(adesc, visible);
-                    if (adesc.equals(WITH_SYNTHETIC_METHODS))
+                    if (adesc.equals(WITH_SYNTHETIC_METHODS) && (access & ACC_SYNTHETIC) == 0)
                         return new WithBridgeMethodsAnnotationVisitor(av) {
                         
                             @Override
