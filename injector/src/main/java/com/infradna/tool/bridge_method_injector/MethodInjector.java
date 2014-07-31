@@ -29,7 +29,6 @@ import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -73,7 +72,29 @@ public class MethodInjector {
         byte[] image;
         try {
             ClassReader cr = new ClassReader(new BufferedInputStream(in));
-            ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
+            /*
+                working around JENKINS-22525 by not passing in 'cr'
+
+                Javac as of 6u31 seems to produce duplicate constant pool entries in some cases.
+                When such a class is transformed through ClassReader -> ClassWriter, it creates
+                a class file where reference sites to those duplicate entries get reshuffled
+                (for example, say #15 and #30 are the duplicate entries, and after a transformation
+                some references that used to use #15 now refers to #30, and vice versa.)
+
+                This is because ClassVisitor interfaces passes around strings, and
+                ClassWriter looks up its constant pool to assign its index.
+
+                For whatever reasons, this triggers "incompatible InnerClasses attribute" problem
+                in IBM J9VM (observed with R26_Java726_SR7_20140409_1418_B195732), while
+                it is happy with the original class file.
+
+                It appears that this rare situation of having duplicate entries in constant pools
+                and have various references use them in a certain way induces this J9 VM bug.
+
+                To work around this problem, we make ASM rebuild the constant pool from scratch,
+                which totally eliminates any duplicate entries.
+             */
+            ClassWriter cw = new ClassWriter(/*cr,*/COMPUTE_MAXS);
             cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)),0);
             image = cw.toByteArray();
         } catch (AlreadyUpToDate _) {
