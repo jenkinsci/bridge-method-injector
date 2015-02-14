@@ -55,7 +55,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * </pre>
  *
  * <p>
- *
  * In some cases, it's necessary to widen the return type of a method, but in a way that legacy
  * calls would still return instances of the original type. In this case, add
  * {@link #castRequired() castRequired=true} to the annotation. For example, if you have the
@@ -74,7 +73,34 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  *   return (FooSubType) createFoo(clazz); // invokeVirtual to createFoo that returns Foo
  * }
  * </pre>
-
+ *
+ * <p>
+ * In extreme cases, this method can add a method whose return type has nothing to do
+ * with the return type of the declared method. For example, if you have the following code:
+ *
+ * <pre>
+ * &#64;WithBridgeMethods(value=String.class, adapterMethod="convert")
+ * public URL getURL() {
+ *   URL url = ....
+ *   return url;
+ * }
+ *
+ * private Object convert(URL url, Class targetType) { return url.toString(); }
+ * </pre>
+ *
+ * <p>
+ * The Maven mojo will insert the following bridge method:
+ *
+ * <pre>
+ * public String getURL() {
+ *   return (String)urlToString(getURL(),String.class);  // invokeVirtual to getURL that returns URL
+ * }
+ * </pre>
+ *
+ * <p>
+ * The specified adapter method must be a method specified on the current class
+ * or its ancestors. It cannot be a static method.
+ *
  * @author Kohsuke Kawaguchi
  */
 @Retention(CLASS)
@@ -97,4 +123,12 @@ public @interface WithBridgeMethods {
      * @since 1.4
      */
     boolean castRequired() default false;
+
+    /**
+     * Specifies the method to convert return value. This lets bridge methods to return
+     * any types, even if it's unrelated to the return type of the declared method.
+     *
+     * @since 1.14
+     */
+    String adapterMethod() default "";
 }

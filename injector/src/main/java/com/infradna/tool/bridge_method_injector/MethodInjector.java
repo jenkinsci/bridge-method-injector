@@ -135,6 +135,7 @@ public class MethodInjector {
 
     private static class WithBridgeMethodsAnnotationVisitor extends AnnotationVisitor {
       protected boolean castRequired = false;
+      protected String adapterMethod = null;
       protected List<Type> types = new ArrayList<Type>();
       
       public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
@@ -161,6 +162,9 @@ public class MethodInjector {
         if ("castRequired".equals(name) && value instanceof Boolean) {
           castRequired = (Boolean) value;
         }
+        if ("adapterMethod".equals(name) && value instanceof String) {
+          adapterMethod = (String) value;
+        }
         super.visit(name, value);
       }
     }
@@ -179,10 +183,18 @@ public class MethodInjector {
             final String originalSignature;
             final String[] exceptions;
             final boolean castRequired;
+            final String adapterMethod;
 
+            /**
+             * Return type of the bridge method to be inserted.
+             */
             final Type returnType;
+            /**
+             * Return type of the declared method written in the source code.
+             */
+            final Type originalReturnType;
 
-            SyntheticMethod(int access, String name, String desc, String originalSignature, String[] exceptions, Type returnType, boolean castRequired) {
+            SyntheticMethod(int access, String name, String desc, String originalSignature, String[] exceptions, Type returnType, boolean castRequired, String adapterMethod) {
                 this.access = access;
                 this.name = name;
                 this.desc = desc;
@@ -190,6 +202,8 @@ public class MethodInjector {
                 this.exceptions = exceptions;
                 this.returnType = returnType;
                 this.castRequired = castRequired;
+                this.adapterMethod = adapterMethod;
+                originalReturnType = Type.getReturnType(desc);
             }
 
             /**
@@ -197,7 +211,6 @@ public class MethodInjector {
              */
             public void inject(ClassVisitor cv) {
                 Type[] paramTypes = Type.getArgumentTypes(desc);
-                Type originalReturnType = Type.getReturnType(desc);
 
                 int access = this.access | ACC_SYNTHETIC | ACC_BRIDGE;
                 String methodDescriptor = Type.getMethodDescriptor(returnType, paramTypes);
@@ -219,6 +232,9 @@ public class MethodInjector {
                     }
                     mv.visitMethodInsn(
                       isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
+                    if (adapterMethod!=null && adapterMethod.length()>0) {
+                        insertAdapterMethod(ga);
+                    } else
                     if (castRequired) {
                         ga.unbox(returnType);
                     } else {
@@ -241,6 +257,19 @@ public class MethodInjector {
                     mv.visitMaxs(sz,0);
                 }
                 mv.visitEnd();
+            }
+
+            private void insertAdapterMethod(GeneratorAdapter ga) {
+                ga.loadThis();
+                ga.swap();
+                ga.push(returnType);
+                ga.visitMethodInsn(INVOKEVIRTUAL, internalClassName, adapterMethod,
+                        Type.getMethodDescriptor(
+                                Type.getType(Object.class), // return type
+                                originalReturnType,
+                                Type.getType(Class.class)
+                        ));
+                ga.unbox(returnType);
             }
         }
 
@@ -279,7 +308,7 @@ public class MethodInjector {
                                 super.visitEnd(); 
                                 for (Type type : this.types)
                                     syntheticMethods.add(new SyntheticMethod(
-                                         access,name,mdesc,signature,exceptions,type, this.castRequired
+                                         access,name,mdesc,signature,exceptions,type, this.castRequired, this.adapterMethod
                                     ));
                             }
                         };

@@ -23,6 +23,10 @@ public class Main {
 
         // still a work in progress
 //        check((Bar)Bar.class.newInstance(),args[0]);
+
+        Adapter a = new Adapter();
+        assertEquals(1,a.i());
+        assertEquals("http://kohsuke.org/",a.o());
     }
 
     private static void assertEquals(Object expected, Object actual) {
