@@ -93,7 +93,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  *
  * <pre>
  * public String getURL() {
- *   return (String)urlToString(getURL(),String.class);  // invokeVirtual to getURL that returns URL
+ *   return (String)convert(getURL(),String.class);  // invokeVirtual to getURL that returns URL
  * }
  * </pre>
  *
