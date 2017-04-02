@@ -31,7 +31,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * This annotation is added after the class transformation to indicate that
- * the class has already been processed by {@link MethodInjector}.
+ * the class has already been processed by bridge method injector.
  *
  * <p>
  * Used for up-to-date check to avoid unnecessary transformations.
