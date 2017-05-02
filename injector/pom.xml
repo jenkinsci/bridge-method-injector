@@ -50,8 +50,8 @@
                 <mkdir dir="target/test-classes/synthetics" />
 
                 <!-- basic sanity. unmodified client and v1 should work as expected -->
-                <javac source="1.6" target="1.6" srcdir="src/test/v1" destdir="target/test-classes/v1" />
-                <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" />
+                <javac source="8" target="8" srcdir="src/test/v1" destdir="target/test-classes/v1" />
+                <javac source="8" target="8" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" />
                 <java classname="Main" args="foo" failonerror="true">
                   <classpath>
                     <pathelement path="target/test-classes/v1" />
@@ -60,7 +60,7 @@
                 </java>
 
                 <!-- compile v2 -->
-                <javac source="1.6" target="1.6" srcdir="src/test/v2" destdir="target/test-classes/v2" classpath="${maven.compile.classpath}">
+                <javac source="8" target="8" srcdir="src/test/v2" destdir="target/test-classes/v2" classpath="${maven.compile.classpath}">
                   <compilerarg value="-XprintProcessorInfo" />
                   <classpath>
                     <pathelement path="target/classes" />
@@ -82,7 +82,7 @@
                 </java>
 
                 <!-- compile synthetics -->
-                <javac source="1.6" target="1.6" srcdir="src/test/synthetics" destdir="target/test-classes/synthetics" classpath="${maven.compile.classpath}">
+                <javac source="8" target="8" srcdir="src/test/synthetics" destdir="target/test-classes/synthetics" classpath="${maven.compile.classpath}">
                   <compilerarg value="-XprintProcessorInfo" />
                   <classpath>
                     <pathelement path="target/classes" />
@@ -98,7 +98,7 @@
                 <!-- was testing source compatibility, but with widening change it won't work anymore -->
                 <!--
                 <mkdir dir="target/test-classes/client-on-v2" />
-                <javac source="1.6" target="1.6" srcdir="src/test/client" destdir="target/test-classes/client-on-v2">
+                <javac source="8" target="8" srcdir="src/test/client" destdir="target/test-classes/client-on-v2">
                   <classpath>
                     <pathelement path="target/test-classes/v2" />
                   </classpath>
@@ -118,7 +118,7 @@
           <dependency>
             <groupId>com.sun</groupId>
             <artifactId>tools</artifactId>
-            <version>1.6</version>
+            <version>1.8</version>
             <scope>system</scope>
             <systemPath>${java.home}/../lib/tools.jar</systemPath>
           </dependency>

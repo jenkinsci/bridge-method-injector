@@ -35,7 +35,7 @@ import org.objectweb.asm.Opcodes;
  */
 abstract class ClassAnnotationInjector extends ClassVisitor {
     ClassAnnotationInjector(ClassVisitor cv) {
-        super(Opcodes.ASM4, cv);
+        super(Opcodes.ASM5, cv);
     }
 
     private boolean emitted = false;

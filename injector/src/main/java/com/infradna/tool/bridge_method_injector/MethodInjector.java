@@ -139,12 +139,12 @@ public class MethodInjector {
       protected List<Type> types = new ArrayList<Type>();
       
       public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
-        super(Opcodes.ASM4, av);
+        super(Opcodes.ASM5, av);
       }
 
       @Override
       public AnnotationVisitor visitArray(String name) {
-        return new AnnotationVisitor(Opcodes.ASM4, super.visitArray(name)) {
+        return new AnnotationVisitor(Opcodes.ASM5, super.visitArray(name)) {
            
             public void visit(String name, Object value) {
                 if (value instanceof Type) {
@@ -274,7 +274,7 @@ public class MethodInjector {
         }
 
         Transformer(ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -296,7 +296,7 @@ public class MethodInjector {
         @Override
         public MethodVisitor visitMethod(final int access, final String name, final String mdesc, final String signature, final String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, mdesc, signature, exceptions);
-            return new MethodVisitor(Opcodes.ASM4, mv) {
+            return new MethodVisitor(Opcodes.ASM5, mv) {
                 @Override
                 public AnnotationVisitor visitAnnotation(String adesc, boolean visible) {
                     AnnotationVisitor av = super.visitAnnotation(adesc, visible);
