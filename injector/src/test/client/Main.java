@@ -27,6 +27,8 @@ public class Main {
         Adapter a = new Adapter();
         assertEquals(1,a.i());
         assertEquals("http://kohsuke.org/",a.o());
+
+        new Adapter.SomeClass().someMethod();
     }
 
     private static void assertEquals(Object expected, Object actual) {

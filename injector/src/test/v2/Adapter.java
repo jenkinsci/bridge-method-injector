@@ -17,4 +17,15 @@ public class Adapter {
     private Object _o(URL o, Class type) {
         return o.toString();
     }
+
+    interface SomeInterface {
+        default void someMethod() {}
+    }
+    static class SomeClass implements SomeInterface {
+        @Override
+        public void someMethod() {
+            SomeInterface.super.someMethod();
+        }
+    }
+
 }
