@@ -219,11 +219,19 @@ public class MethodInjector {
                 if ((access&ACC_ABSTRACT)==0) {
                     GeneratorAdapter ga = new GeneratorAdapter(mv, access, name, methodDescriptor);
                     mv.visitCode();
+
                     int sz = 0;
+
+                    if (hasAdapterMethod()) {
+                        // the LHS of the adapter method invocation
+                        ga.loadThis();
+                        sz++;
+                    }
+
                     boolean isStatic = (access & ACC_STATIC) != 0;
                     if (!isStatic) {
-                      mv.visitVarInsn(ALOAD,0);
-                      sz++;
+                        ga.loadThis();
+                        sz++;
                     }
 
                     for (Type p : paramTypes) {
@@ -232,7 +240,7 @@ public class MethodInjector {
                     }
                     mv.visitMethodInsn(
                       isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
-                    if (adapterMethod!=null && adapterMethod.length()>0) {
+                    if (hasAdapterMethod()) {
                         insertAdapterMethod(ga);
                     } else
                     if (castRequired) {
@@ -259,9 +267,11 @@ public class MethodInjector {
                 mv.visitEnd();
             }
 
+            private boolean hasAdapterMethod() {
+                return adapterMethod!=null && adapterMethod.length()>0;
+            }
+
             private void insertAdapterMethod(GeneratorAdapter ga) {
-                ga.loadThis();
-                ga.swap();
                 ga.push(returnType);
                 ga.visitMethodInsn(INVOKEVIRTUAL, internalClassName, adapterMethod,
                         Type.getMethodDescriptor(
