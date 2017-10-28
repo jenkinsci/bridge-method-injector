@@ -28,4 +28,8 @@ public class Adapter {
         }
     }
 
+    @WithBridgeMethods(value=int.class, adapterMethod="l2i")
+    public long l() { return 1L; }
+
+    private Object l2i(long v, Class type) { return (int)v; }
 }

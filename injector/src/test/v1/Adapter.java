@@ -13,4 +13,6 @@ public class Adapter {
         }
     }
 
+    // we will evolve this from int -> long
+    public int l() { return 1; }
 }
