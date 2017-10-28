@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.infradna.tool</groupId>
     <artifactId>bridge-method-injector-parent</artifactId>
-    <version>1.18</version>
+    <version>1.19-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>bridge-method-injector</artifactId>
@@ -136,7 +136,7 @@
 
   <scm>
     <connection>scm:git:git@github.com:infradna/bridge-method-injector.git</connection>
-    <tag>bridge-method-injector-parent-1.18</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>
