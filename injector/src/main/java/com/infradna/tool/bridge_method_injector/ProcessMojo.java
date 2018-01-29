@@ -38,6 +38,7 @@ import java.io.InputStreamReader;
  * @goal process
  * @phase process-classes
  * @requiresDependencyResolution runtime
+ * @threadSafe
  */
 public class ProcessMojo extends AbstractMojo {
     /**
