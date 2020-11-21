@@ -19,9 +19,10 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+	<version>3.8.1</version>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -57,6 +58,7 @@
         </configuration>
       </plugin>
     </plugins>
+
     <extensions>
       <extension>
         <groupId>org.jvnet.wagon-svn</groupId>
@@ -65,6 +67,13 @@
       </extension>
     </extensions>
   </build>
+
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
 
   <scm>
     <connection>scm:git:git@github.com:infradna/bridge-method-injector.git</connection>
@@ -112,7 +121,7 @@
       </plugin>
     </plugins>
   </reporting>
-  
+
   <profiles>
     <profile>
       <id>release</id>
