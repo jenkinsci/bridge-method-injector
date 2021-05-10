@@ -50,7 +50,7 @@ public class ProcessMojo extends AbstractMojo {
     private File classesDirectory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File index = new File(classesDirectory, "META-INF/annotations/" + WithBridgeMethods.class.getName());
+        File index = new File(classesDirectory, "META-INF/services/annotations/" + WithBridgeMethods.class.getName());
         if (!index.exists()) {
             getLog().debug("Skipping because there's no "+index);
             return;
