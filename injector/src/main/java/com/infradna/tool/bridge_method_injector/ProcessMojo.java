@@ -27,11 +27,11 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+import org.jvnet.hudson.annotation_indexer.Index;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -50,28 +50,14 @@ public class ProcessMojo extends AbstractMojo {
     private File classesDirectory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File index = new File(classesDirectory, "META-INF/services/annotations/" + WithBridgeMethods.class.getName());
-        if (!index.exists()) {
-            getLog().debug("Skipping because there's no "+index);
-            return;
-        }
-
-        BufferedReader r = null;
         try {
-            r = new BufferedReader(new InputStreamReader(new FileInputStream(index),"UTF-8"));
-            String line;
-            while ((line=r.readLine())!=null) {
+            for (String line : Index.listClassNames(WithBridgeMethods.class, new URLClassLoader(new URL[] {classesDirectory.toURI().toURL()}, ClassLoader.getSystemClassLoader().getParent()))) {
                 File classFile = new File(classesDirectory,line.replace('.','/')+".class");
                 getLog().debug("Processing "+line);
                 new MethodInjector().handle(classFile);
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to process @WithBridgeMethods",e);
-        } finally {
-            try {
-                if (r!=null)    r.close();
-            } catch (IOException _) {
-            }
         }
     }
 }
