@@ -12,6 +12,10 @@
   <name>bridge-method-injector</name>
   <description>Evolve your classes without breaking compatibility</description>
 
+  <properties>
+    <asm.version>9.2</asm.version>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -169,12 +173,12 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>9.0</version>
+      <version>${asm.version}</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-commons</artifactId>
-      <version>9.0</version>
+      <version>${asm.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
