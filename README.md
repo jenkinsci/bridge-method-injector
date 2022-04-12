@@ -1,0 +1,139 @@
+# What's this?
+
+When you are writing a library, there are various restrictions about the kind of changes you can make, in order to maintain binary compatibility.
+
+One such restriction is an inability to restrict the return type. Say in v1 of your library you had the following code:
+
+```
+public Foo getFoo() {
+    return new Foo();
+}
+```
+
+In v2, say if you introduce a subtype of `Foo` called `FooSubType`, and you want to change the getFoo method to return `FooSubType`.
+
+```
+public FooSubType getFoo() {
+    return new FooSubType();
+}
+```
+
+But if you do this, you break the binary compatibility. The clients need to be recompiled to be able to work with the new signature. This is where this bridge method injector can help. By adding an annotation like the following:
+
+```
+@WithBridgeMethods(Foo.class)
+public FooSubType getFoo() {
+    return new FooSubType();
+}
+```
+
+... and running the bytecode post processor, your class file will get the additional "bridge methods." In pseudo-code, it'll look like this:
+
+```
+// your original definition
+@WithBridgeMethods(Foo.class)
+public FooSubType getFoo() {
+    return new FooSubType();
+}
+
+// added bridge method
+public Foo getFoo() {
+    invokevirtual this.getFoo()LFooSubType;
+    areturn
+}
+```
+
+Such code isn't allowed in Java source files, but class files allow that. With this addition, existing clients will continue to function.
+
+In this way, you can evolve your classes more easily without breaking backward compatibility.
+
+# Widening the return type
+
+In some cases, it's convenient to widen the return type of a method. As this is potentially a type-unsafe change
+(as the callee can return a type that's not assignable to what the caller expects), so
+you as a programmer explicitly need to tell us that you know what you are doing by adding
+`castRequired` to the annotation.  For example, suppose that v1 had a method:
+
+```
+public <T extends FooSubType> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+```
+
+and in v2 you wanted to widen this method to. Note that you can prove that this is still type-safe, while
+your compile cannot:
+
+```
+public <T extends Foo> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+```
+
+The annotation to provide backwards compatibility would be:
+
+```
+@WithBridgeMethods(value=FooSubType.class, castRequired=true)
+public <T extends Foo> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+```
+
+Running the bytecode post processor, the resulting class file will look like the following pseudo-code:
+
+```
+// your original definition
+@WithBridgeMethods(value=FooSubType.class, castRequired=true)
+public <T extends Foo> createFoo(Class<T> clazz) {
+    return clazz.newInstance();
+}
+
+// added bridge method
+public FooSubType createFoo(Class clazz) {
+    invokevirtual this.createFoo(java/lang/Class)LFoo
+    checkcast FooSubType
+    areturn
+}
+```
+
+# Bridge Methods and Interfaces
+
+You can use `@WithBridgeMethods` with interfaces, too. However, making this work correctly is tricky,
+as you have to ensure that bridge methods are implemented on all the classes that implement the interface,
+for example by adding `@WithBridgeMethods` on every implementation of the method in question,
+or by introducing a base class that provides a bridge method.
+
+# Integration into Your Build
+
+Add the following dependency in your POM. (This dependency is not needed at runtime, but it is necessary
+for compilation of source code that transitively depend on this, so it is the simplest to just treat
+this like a regular library dependency)
+
+```
+    <dependency>
+      <groupId>com.infradna.tool</groupId>
+      <artifactId>bridge-method-annotation</artifactId>
+      <version>1.12</version>
+    </dependency>
+```
+
+  Then put the following fragment in your build to have the byte-code post processor kick in to inject the necessary bridge methods.
+
+```
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.infradna.tool</groupId>
+        <artifactId>bridge-method-injector</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
+
