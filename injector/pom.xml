@@ -13,7 +13,7 @@
   <description>Evolve your classes without breaking compatibility</description>
 
   <properties>
-    <asm.version>9.2</asm.version>
+    <asm.version>9.4</asm.version>
   </properties>
 
   <build>
