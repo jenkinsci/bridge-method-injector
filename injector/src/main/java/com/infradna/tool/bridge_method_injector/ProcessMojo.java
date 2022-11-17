@@ -23,6 +23,8 @@
  */
 package com.infradna.tool.bridge_method_injector;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -48,6 +50,9 @@ public class ProcessMojo extends AbstractMojo {
     private File classesDirectory;
 
     @Override
+    @SuppressFBWarnings(
+            value = {"DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED", "PATH_TRAVERSAL_IN"},
+            justification = "irrelevant without SecurityManager; user-provided value for running the program")
     public void execute() throws MojoExecutionException {
         try {
             for (String line : Index.listClassNames(WithBridgeMethods.class, new URLClassLoader(new URL[] {classesDirectory.toURI().toURL()}, ClassLoader.getSystemClassLoader().getParent()))) {

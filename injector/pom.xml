@@ -15,8 +15,6 @@
   <properties>
     <asm.version>9.4</asm.version>
     <maven-plugin-tools.version>3.7.0</maven-plugin-tools.version>
-    <!-- TODO fix violations -->
-    <spotbugs.threshold>High</spotbugs.threshold>
   </properties>
 
   <build>
