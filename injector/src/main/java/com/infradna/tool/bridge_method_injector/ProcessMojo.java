@@ -25,7 +25,6 @@ package com.infradna.tool.bridge_method_injector;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +48,8 @@ public class ProcessMojo extends AbstractMojo {
      */
     private File classesDirectory;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    @Override
+    public void execute() throws MojoExecutionException {
         try {
             for (String line : Index.listClassNames(WithBridgeMethods.class, new URLClassLoader(new URL[] {classesDirectory.toURI().toURL()}, ClassLoader.getSystemClassLoader().getParent()))) {
                 File classFile = new File(classesDirectory,line.replace('.','/')+".class");
