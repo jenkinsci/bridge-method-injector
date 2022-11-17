@@ -1,10 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.infradna.tool</groupId>
     <artifactId>bridge-method-injector-parent</artifactId>
-    <version>1.25-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <version>${revision}${changelist}</version>
   </parent>
   <artifactId>bridge-method-annotation</artifactId>
   <name>Bridge method injection annotations</name>
@@ -13,14 +13,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>annotation-indexer</artifactId>
-      <version>1.15</version>
+      <version>1.16</version>
     </dependency>
   </dependencies>
-  
-  <repositories>
-      <repository>
-          <id>Jenkins-CI</id>
-          <url>http://repo.jenkins-ci.org/releases/</url>
-      </repository>
-  </repositories>
 </project>

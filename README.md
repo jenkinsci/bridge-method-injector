@@ -4,7 +4,7 @@ When you are writing a library, there are various restrictions about the kind of
 
 One such restriction is an inability to restrict the return type. Say in v1 of your library you had the following code:
 
-```
+```java
 public Foo getFoo() {
     return new Foo();
 }
@@ -12,7 +12,7 @@ public Foo getFoo() {
 
 In v2, say if you introduce a subtype of `Foo` called `FooSubType`, and you want to change the getFoo method to return `FooSubType`.
 
-```
+```java
 public FooSubType getFoo() {
     return new FooSubType();
 }
@@ -20,7 +20,7 @@ public FooSubType getFoo() {
 
 But if you do this, you break the binary compatibility. The clients need to be recompiled to be able to work with the new signature. This is where this bridge method injector can help. By adding an annotation like the following:
 
-```
+```java
 @WithBridgeMethods(Foo.class)
 public FooSubType getFoo() {
     return new FooSubType();
@@ -29,7 +29,7 @@ public FooSubType getFoo() {
 
 ... and running the bytecode post processor, your class file will get the additional "bridge methods." In pseudo-code, it'll look like this:
 
-```
+```java
 // your original definition
 @WithBridgeMethods(Foo.class)
 public FooSubType getFoo() {
@@ -54,7 +54,7 @@ In some cases, it's convenient to widen the return type of a method. As this is 
 you as a programmer explicitly need to tell us that you know what you are doing by adding
 `castRequired` to the annotation.  For example, suppose that v1 had a method:
 
-```
+```java
 public <T extends FooSubType> createFoo(Class<T> clazz) {
     return clazz.newInstance();
 }
@@ -63,7 +63,7 @@ public <T extends FooSubType> createFoo(Class<T> clazz) {
 and in v2 you wanted to widen this method to. Note that you can prove that this is still type-safe, while
 your compile cannot:
 
-```
+```java
 public <T extends Foo> createFoo(Class<T> clazz) {
     return clazz.newInstance();
 }
@@ -71,7 +71,7 @@ public <T extends Foo> createFoo(Class<T> clazz) {
 
 The annotation to provide backwards compatibility would be:
 
-```
+```java
 @WithBridgeMethods(value=FooSubType.class, castRequired=true)
 public <T extends Foo> createFoo(Class<T> clazz) {
     return clazz.newInstance();
@@ -80,7 +80,7 @@ public <T extends Foo> createFoo(Class<T> clazz) {
 
 Running the bytecode post processor, the resulting class file will look like the following pseudo-code:
 
-```
+```java
 // your original definition
 @WithBridgeMethods(value=FooSubType.class, castRequired=true)
 public <T extends Foo> createFoo(Class<T> clazz) {
@@ -108,23 +108,23 @@ Add the following dependency in your POM. (This dependency is not needed at runt
 for compilation of source code that transitively depend on this, so it is the simplest to just treat
 this like a regular library dependency)
 
-```
+```xml
     <dependency>
       <groupId>com.infradna.tool</groupId>
       <artifactId>bridge-method-annotation</artifactId>
-      <version>1.12</version>
+      <version>1.24</version>
     </dependency>
 ```
 
   Then put the following fragment in your build to have the byte-code post processor kick in to inject the necessary bridge methods.
 
-```
+```xml
   <build>
     <plugins>
       <plugin>
         <groupId>com.infradna.tool</groupId>
         <artifactId>bridge-method-injector</artifactId>
-        <version>1.4</version>
+        <version>1.24</version>
         <executions>
           <execution>
             <goals>

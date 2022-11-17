@@ -26,6 +26,10 @@ package com.infradna.tool.bridge_method_injector;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,18 +39,13 @@ import org.jvnet.hudson.annotation_indexer.Index;
 
 /**
  * @author Kohsuke Kawaguchi
- * @goal process
- * @phase process-classes
- * @requiresDependencyResolution runtime
- * @threadSafe
  */
+@Mojo(name = "process", requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.PROCESS_CLASSES, threadSafe = true)
 public class ProcessMojo extends AbstractMojo {
     /**
      * The directory containing generated classes.
-     *
-     * @parameter expression="${project.build.outputDirectory}"
-     * @required
      */
+    @Parameter(defaultValue = "${project.build.outputDirectory}", required = true)
     private File classesDirectory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
