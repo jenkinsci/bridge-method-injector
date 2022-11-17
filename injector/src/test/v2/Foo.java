@@ -24,14 +24,30 @@ public class Foo implements IFoo {
       return clazz.cast("bar");
     }
 
+    static boolean toggle;
+
     @WithBridgeMethods(void.class)
     public static boolean hello() {
+        toggle = true;
         return true;
     }
 
     @WithBridgeMethods(void.class)
     public static String hello2() {
+        toggle = true;
         return "hello2";
+    }
+
+    @WithBridgeMethods(void.class)
+    public boolean hello3() {
+        toggle = true;
+        return true;
+    }
+
+    @WithBridgeMethods(void.class)
+    public String hello4() {
+        toggle = true;
+        return "hello4";
     }
     
     @WithBridgeMethods(value=int.class, castRequired=true)
