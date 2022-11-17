@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -100,7 +102,7 @@ public class MethodInjector {
             ClassWriter cw = new ClassWriter(/*cr,*/COMPUTE_MAXS);
             cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)),0);
             image = cw.toByteArray();
-        } catch (AlreadyUpToDate _) {
+        } catch (AlreadyUpToDate unused) {
             // no need to process this class. it's already up-to-date.
             return;
         } catch (IOException | RuntimeException e) {
@@ -342,6 +344,7 @@ public class MethodInjector {
         }
     }
 
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "TODO needs triage")
     public static void main(String[] args) throws IOException {
         MethodInjector mi = new MethodInjector();
         for (String a : args) {
