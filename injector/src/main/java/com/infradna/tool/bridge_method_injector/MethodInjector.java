@@ -344,7 +344,7 @@ public class MethodInjector {
         }
     }
 
-    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "TODO needs triage")
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "user-provided value for running the program")
     public static void main(String[] args) throws IOException {
         MethodInjector mi = new MethodInjector();
         for (String a : args) {
