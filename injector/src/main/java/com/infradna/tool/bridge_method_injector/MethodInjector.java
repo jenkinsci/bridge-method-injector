@@ -231,6 +231,8 @@ public class MethodInjector {
                     if (returnType.equals(Type.VOID_TYPE) || returnType.getClassName().equals("java.lang.Void")) {
                         // bridge to void, which means disregard the return value from the original method
                         switch (originalReturnType.getSize()) {
+                        case 0:
+                            throw new IllegalArgumentException("Cannot bridge " + name + " from void to void; did you mean to use a different type?");
                         case 1:
                             mv.visitInsn(POP);
                             break;
