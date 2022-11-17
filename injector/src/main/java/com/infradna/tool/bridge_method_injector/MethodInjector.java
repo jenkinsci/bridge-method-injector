@@ -28,7 +28,6 @@ import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -63,17 +62,21 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 public class MethodInjector {
     public void handleRecursively(File f) throws IOException {
         if (f.isDirectory()) {
-            for (File c : f.listFiles())
-                handleRecursively(c);
-        } else if (f.getName().endsWith(".class"))
+            File[] files = f.listFiles();
+            if (files != null) {
+                for (File c : files) {
+                    handleRecursively(c);
+                }
+            }
+        } else if (f.getName().endsWith(".class")) {
             handle(f);
+        }
     }
 
     public void handle(File classFile) throws IOException {
-        FileInputStream in = new FileInputStream(classFile);
         byte[] image;
-        try {
-            ClassReader cr = new ClassReader(new BufferedInputStream(in));
+        try (FileInputStream in = new FileInputStream(classFile); BufferedInputStream bis = new BufferedInputStream(in)) {
+            ClassReader cr = new ClassReader(bis);
             /*
                 working around JENKINS-22525 by not passing in 'cr'
 
@@ -102,24 +105,20 @@ public class MethodInjector {
         } catch (AlreadyUpToDate unused) {
             // no need to process this class. it's already up-to-date.
             return;
-        } catch (IOException e) {
-            throw (IOException)new IOException("Failed to process "+classFile).initCause(e);
-        } catch (RuntimeException e) {
-            throw (IOException)new IOException("Failed to process "+classFile).initCause(e);
-        } finally {
-            in.close();
+        } catch (IOException | RuntimeException e) {
+            throw new IOException("Failed to process " + classFile, e);
         }
 
         // write it back
-        FileOutputStream out = new FileOutputStream(classFile);
-        out.write(image);
-        out.close();
+        try (FileOutputStream out = new FileOutputStream(classFile)) {
+            out.write(image);
+        }
     }
 
     /**
      * Thrown to indicate that there's no need to re-process this class file.
      */
-    class AlreadyUpToDate extends RuntimeException {
+    static class AlreadyUpToDate extends RuntimeException {
       private static final long serialVersionUID = 1L;
     }
 
@@ -138,7 +137,7 @@ public class MethodInjector {
     private static class WithBridgeMethodsAnnotationVisitor extends AnnotationVisitor {
       protected boolean castRequired = false;
       protected String adapterMethod = null;
-      protected List<Type> types = new ArrayList<Type>();
+      protected final List<Type> types = new ArrayList<>();
       
       public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
         super(Opcodes.ASM9, av);
@@ -148,6 +147,7 @@ public class MethodInjector {
       public AnnotationVisitor visitArray(String name) {
         return new AnnotationVisitor(Opcodes.ASM9, super.visitArray(name)) {
            
+            @Override
             public void visit(String name, Object value) {
                 if (value instanceof Type) {
                   // assume this is a member of the array of classes named "value" in WithBridgeMethods
@@ -171,12 +171,12 @@ public class MethodInjector {
       }
     }
 
-    class Transformer extends ClassVisitor {
+    static class Transformer extends ClassVisitor {
         private String internalClassName;
         /**
          * Synthetic methods to be generated.
          */
-        private final List<SyntheticMethod> syntheticMethods = new ArrayList<SyntheticMethod>();
+        private final List<SyntheticMethod> syntheticMethods = new ArrayList<>();
 
         class SyntheticMethod {
             final int access;
@@ -241,7 +241,7 @@ public class MethodInjector {
                         sz += p.getSize();
                     }
                     mv.visitMethodInsn(
-                      isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc);
+                      isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc,false);
                     if (hasAdapterMethod()) {
                         insertAdapterMethod(ga);
                     } else
@@ -280,7 +280,7 @@ public class MethodInjector {
                                 Type.getType(Object.class), // return type
                                 originalReturnType,
                                 Type.getType(Class.class)
-                        ));
+                        ), false);
                 ga.unbox(returnType);
             }
         }
@@ -297,8 +297,9 @@ public class MethodInjector {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            if (desc.equals(SYNTHETIC_METHODS_ADDED))
+            if (desc.equals(SYNTHETIC_METHODS_ADDED)) {
                 throw new AlreadyUpToDate();    // no need to process this class
+            }
             return super.visitAnnotation(desc, visible);
         }
 
@@ -312,18 +313,20 @@ public class MethodInjector {
                 @Override
                 public AnnotationVisitor visitAnnotation(String adesc, boolean visible) {
                     AnnotationVisitor av = super.visitAnnotation(adesc, visible);
-                    if (adesc.equals(WITH_SYNTHETIC_METHODS) && (access & ACC_SYNTHETIC) == 0)
+                    if (adesc.equals(WITH_SYNTHETIC_METHODS) && (access & ACC_SYNTHETIC) == 0) {
                         return new WithBridgeMethodsAnnotationVisitor(av) {
                         
                             @Override
                             public void visitEnd() {
                                 super.visitEnd(); 
-                                for (Type type : this.types)
+                                for (Type type : this.types) {
                                     syntheticMethods.add(new SyntheticMethod(
                                          access,name,mdesc,signature,exceptions,type, this.castRequired, this.adapterMethod
                                     ));
+                                }
                             }
                         };
+                    }
                     return av;
                 }
             };
@@ -334,8 +337,9 @@ public class MethodInjector {
          */
         @Override
         public void visitEnd() {
-            for (SyntheticMethod m : syntheticMethods)
+            for (SyntheticMethod m : syntheticMethods) {
                 m.inject(cv);
+            }
             super.visitEnd();
         }
     }
