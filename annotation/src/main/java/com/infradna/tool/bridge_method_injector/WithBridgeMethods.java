@@ -26,11 +26,10 @@ package com.infradna.tool.bridge_method_injector;
 import org.jvnet.hudson.annotation_indexer.Indexed;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Request that bridge methods of the same name and same arguments be generated
@@ -103,8 +102,8 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  *
  * @author Kohsuke Kawaguchi
  */
-@Retention(CLASS)
-@Target(METHOD)
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.METHOD)
 @Documented
 @Indexed
 public @interface WithBridgeMethods {

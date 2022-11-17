@@ -23,11 +23,10 @@
  */
 package com.infradna.tool.bridge_method_injector;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * This annotation is added after the class transformation to indicate that
@@ -38,7 +37,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * @author Kohsuke Kawaguchi
  */
-@Retention(CLASS)
-@Target(TYPE)
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.TYPE)
 public @interface BridgeMethodsAdded {
 }
