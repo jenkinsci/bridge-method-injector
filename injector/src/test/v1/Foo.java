@@ -21,9 +21,23 @@ public class Foo implements IFoo {
       return clazz.cast("foo");
     }
 
-    public static void hello() {}
+    static boolean toggle;
 
-    public static void hello2() {}
+    public static void hello() {
+        toggle = true;
+    }
+
+    public static void hello2() {
+        toggle = true;
+    }
+
+    public void hello3() {
+        toggle = true;
+    }
+
+    public void hello4() {
+        toggle = true;
+    }
     
     public static int unbox() {return Integer.MIN_VALUE;}
     

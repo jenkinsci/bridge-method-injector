@@ -223,7 +223,7 @@ public class MethodInjector {
                     if (hasAdapterMethod()) {
                         insertAdapterMethod(ga);
                     } else
-                    if (castRequired) {
+                    if (castRequired || returnType.equals(Type.VOID_TYPE)) {
                         ga.unbox(returnType);
                     } else {
                         ga.box(originalReturnType);

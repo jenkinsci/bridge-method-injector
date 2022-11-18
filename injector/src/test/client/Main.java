@@ -1,8 +1,23 @@
 public class Main {
     public static void main(String[] args) throws Exception {
         // invocation of void method. verify that it runs without error
+
+        Foo.toggle = false;
         Foo.hello();
+        assertEquals(true, Foo.toggle);
+
+        Foo.toggle = false;
         Foo.hello2();
+        assertEquals(true, Foo.toggle);
+
+        Foo.toggle = false;
+        new Foo().hello3();
+        assertEquals(true, Foo.toggle);
+
+        Foo.toggle = false;
+        new Foo().hello4();
+        assertEquals(true, Foo.toggle);
+
         Foo.unbox();
         Foo.box();
 
