@@ -13,7 +13,7 @@
   <description>Evolve your classes without breaking compatibility</description>
 
   <properties>
-    <asm.version>9.4</asm.version>
+    <asm.version>9.5</asm.version>
     <maven-plugin-tools.version>3.8.1</maven-plugin-tools.version>
     <maven.version>3.8.1</maven.version>
   </properties>
