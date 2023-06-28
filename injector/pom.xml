@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.infradna.tool</groupId>
     <artifactId>bridge-method-injector-parent</artifactId>
-    <version>1.27</version>
+    <version>${revision}${changelist}</version>
   </parent>
   <artifactId>bridge-method-injector</artifactId>
   <packaging>maven-plugin</packaging>
