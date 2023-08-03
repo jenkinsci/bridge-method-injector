@@ -132,6 +132,9 @@ as you have to ensure that bridge methods are implemented on all the classes tha
 for example by adding `@WithBridgeMethods` on every implementation of the method in question,
 or by introducing a base class that provides a bridge method.
 
+For adapter methods, the bridge method annotation on the interface does not need to declare the
+interface, but the bridge method annotation on the interface does.
+
 See the Javadoc for more details:
 
 - [`bridge-method-annotation`](https://javadoc.jenkins.io/component/bridge-method-annotation/)

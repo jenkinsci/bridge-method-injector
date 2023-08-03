@@ -35,9 +35,7 @@ public class Main {
 
         // using reflection to ensure that JIT isn't doing inlining
         check((Foo)Foo.class.newInstance(),args[0]);
-
-        // still a work in progress
-//        check((Bar)Bar.class.newInstance(),args[0]);
+        check((Bar)Bar.class.newInstance(),args[0]);
 
         Adapter a = new Adapter();
         assertEquals(1,a.i());
@@ -72,5 +70,8 @@ public class Main {
 
         String n = f.widen();
         assertEquals(expected,n);
+
+        String u = f.adapter();
+        assertEquals("http://example.com/", u);
     }
 }
