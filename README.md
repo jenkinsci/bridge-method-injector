@@ -97,6 +97,34 @@ public FooSubType createFoo(Class clazz) {
 }
 ```
 
+## Adapter methods
+
+In extreme cases, we can add a method whose return type has nothing to do with the return type of the declared method.
+For example, if you have the following code:
+
+```java
+@WithBridgeMethods(value = String.class, adapterMethod = "convert")
+public URL getURL() {
+    URL url = ....
+    return url;
+}
+
+private Object convert(URL url, Class targetType) {
+    return url.toString();
+}
+```
+
+The Maven mojo will insert the following bridge method:
+
+```java
+public String getURL() {
+    return (String) convert(getURL(), String.class);  // invokeVirtual to getURL that returns URL
+}
+```
+
+The specified adapter method must be a method specified on the current class or its ancestors.
+It cannot be a static method.
+
 ## Bridge methods and interfaces
 
 You can use `@WithBridgeMethods` with interfaces, too. However, making this work correctly is tricky,
