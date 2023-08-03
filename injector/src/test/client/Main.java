@@ -43,6 +43,10 @@ public class Main {
         assertEquals(1,a.i());
         assertEquals("http://kohsuke.org/",a.o());
 
+        String[] array = a.array();
+        assertEquals(1, array.length);
+        assertEquals("http://kohsuke.org/", array[0]);
+
         new Adapter.SomeClass().someMethod();
 
         assertEquals(1,a.l());

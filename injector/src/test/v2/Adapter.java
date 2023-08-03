@@ -18,6 +18,19 @@ public class Adapter {
         return o.toString();
     }
 
+    @WithBridgeMethods(value = String[].class, adapterMethod = "_array")
+    URL[] array() throws IOException {
+        return new URL[]{ new URL("http://kohsuke.org/") };
+    }
+
+    private Object _array(URL[] array, Class<?> type) {
+        String[] result = new String[array.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = array[i].toString();
+        }
+        return result;
+    }
+
     interface SomeInterface {
         default void someMethod() {}
     }

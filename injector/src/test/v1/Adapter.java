@@ -1,6 +1,9 @@
 public class Adapter {
     public int i() { return 1; }
     public String o() { return "http://kohsuke.org/"; }
+    public String[] array() {
+        return new String[]{ "http://kohsuke.org/" };
+    }
 
     // Just making sure we do not barf on Java 8 constructs:
     interface SomeInterface {
