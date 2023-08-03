@@ -133,7 +133,7 @@ for example by adding `@WithBridgeMethods` on every implementation of the method
 or by introducing a base class that provides a bridge method.
 
 For adapter methods, the bridge method annotation on the interface does not need to declare the
-interface, but the bridge method annotation on the interface does.
+adapter method, but the bridge method annotation on the implementation does.
 
 See the Javadoc for more details:
 
