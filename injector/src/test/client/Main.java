@@ -40,6 +40,8 @@ public class Main {
         Adapter a = new Adapter();
         assertEquals(1,a.i());
         assertEquals("http://kohsuke.org/",a.o());
+        assertEquals("http://kohsuke.org/" + args[0], a.oParam(args[0]));
+        assertEquals("http://kohsuke.org/" + args[0] + "/" + args[0] + "/" + args[0], a.oParams(args[0], args[0], args[0]));
 
         String[] array = a.array();
         assertEquals(1, array.length);
