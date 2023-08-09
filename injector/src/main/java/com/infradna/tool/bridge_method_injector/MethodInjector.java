@@ -214,10 +214,13 @@ public class MethodInjector {
                         sz++;
                     }
 
+                    int argpos = 0;
                     for (Type p : paramTypes) {
-                        mv.visitVarInsn(p.getOpcode(ILOAD), hasAdapterMethod() ? sz - 1 : sz);
-                        sz += p.getSize();
+                        mv.visitVarInsn(p.getOpcode(ILOAD), argpos + (isStatic ? 0 : 1));
+                        argpos += p.getSize();
                     }
+                    sz += argpos;
+
                     mv.visitMethodInsn(
                       isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc,false);
                     if (hasAdapterMethod()) {
