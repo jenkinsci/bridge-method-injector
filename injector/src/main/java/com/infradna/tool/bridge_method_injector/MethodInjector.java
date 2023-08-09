@@ -215,7 +215,7 @@ public class MethodInjector {
                     }
 
                     for (Type p : paramTypes) {
-                        mv.visitVarInsn(p.getOpcode(ILOAD), sz);
+                        mv.visitVarInsn(p.getOpcode(ILOAD), hasAdapterMethod() ? sz - 1 : sz);
                         sz += p.getSize();
                     }
                     mv.visitMethodInsn(
