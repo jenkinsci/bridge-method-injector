@@ -5,6 +5,10 @@ public class Adapter {
         return new String[]{ "http://kohsuke.org/" };
     }
 
+    public String oParam(String path) {
+        return "http://kohsuke.org/" + path;
+    }
+
     // Just making sure we do not barf on Java 8 constructs:
     interface SomeInterface {
         default void someMethod() {}

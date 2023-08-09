@@ -18,6 +18,11 @@ public class Adapter {
         return o.toString();
     }
 
+    @WithBridgeMethods(value = String.class, adapterMethod="_o")
+    public URL oParam(String path) throws IOException {
+        return new URL("http://kohsuke.org/" + path);
+    }
+
     @WithBridgeMethods(value = String[].class, adapterMethod = "_array")
     URL[] array() throws IOException {
         return new URL[]{ new URL("http://kohsuke.org/") };
