@@ -54,8 +54,9 @@ public class Main {
 
     private static void assertEquals(Object expected, Object actual) {
         System.out.println("We got "+actual+", expecting "+expected);
-        if (!actual.equals(expected))
+        if (!actual.equals(expected)) {
             System.exit(1);
+        }
     }
 
     private static void check(IFoo f, String expected) {

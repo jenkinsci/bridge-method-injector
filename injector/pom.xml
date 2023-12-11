@@ -6,118 +6,21 @@
     <artifactId>bridge-method-injector-parent</artifactId>
     <version>${revision}${changelist}</version>
   </parent>
+
   <artifactId>bridge-method-injector</artifactId>
   <packaging>maven-plugin</packaging>
-
   <name>bridge-method-injector</name>
   <description>Evolve your classes without breaking compatibility</description>
+
+  <prerequisites>
+    <maven>${maven.version}</maven>
+  </prerequisites>
 
   <properties>
     <asm.version>9.6</asm.version>
     <maven-plugin-tools.version>3.10.2</maven-plugin-tools.version>
     <maven.version>3.8.1</maven.version>
   </properties>
-
-  <prerequisites>
-    <maven>${maven.version}</maven>
-  </prerequisites>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>${maven-plugin-tools.version}</version>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>test</phase>
-            <configuration>
-              <target>
-                <delete dir="target/test-classes" />
-                <mkdir dir="target/test-classes/v1" />
-                <mkdir dir="target/test-classes/v2" />
-                <mkdir dir="target/test-classes/client" />
-                <mkdir dir="target/test-classes/synthetics" />
-
-                <!-- basic sanity. unmodified client and v1 should work as expected -->
-                <javac release="${maven.compiler.release}" srcdir="src/test/v1" destdir="target/test-classes/v1" includeantruntime="false" />
-                <javac release="${maven.compiler.release}" srcdir="src/test/client" destdir="target/test-classes/client" classpath="target/test-classes/v1" includeantruntime="false" />
-                <java classname="Main" failonerror="true">
-                  <arg value="foo" />
-                  <classpath>
-                    <pathelement path="target/test-classes/v1" />
-                    <pathelement path="target/test-classes/client" />
-                  </classpath>
-                </java>
-
-                <!-- compile v2 -->
-                <javac release="${maven.compiler.release}" srcdir="src/test/v2" destdir="target/test-classes/v2" classpath="${maven.compile.classpath}" includeantruntime="false">
-                  <compilerarg value="-XprintProcessorInfo" />
-                  <classpath>
-                    <pathelement path="target/classes" />
-                    <path refid="maven.compile.classpath" />
-                  </classpath>
-                </javac>
-
-                <!-- post process v2 -->
-                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true">
-                  <arg value="${project.basedir}/target/test-classes/v2" />
-                  <classpath refid="maven.compile.classpath" />
-                </java>
-
-                <!-- verify that unmodified client code continue to work with v2 binary -->
-                <java classname="Main" failonerror="true">
-                  <arg value="bar" />
-                  <classpath>
-                    <pathelement path="target/test-classes/v2" />
-                    <pathelement path="target/test-classes/client" />
-                  </classpath>
-                </java>
-
-                <!-- compile synthetics -->
-                <javac release="${maven.compiler.release}" srcdir="src/test/synthetics" destdir="target/test-classes/synthetics" classpath="${maven.compile.classpath}" includeantruntime="false">
-                  <compilerarg value="-XprintProcessorInfo" />
-                  <classpath>
-                    <pathelement path="target/classes" />
-                    <path refid="maven.compile.classpath" />
-                  </classpath>
-                </javac>
-
-                <!-- post process synthetics -->
-                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true">
-                  <arg value="${project.basedir}/target/test-classes/synthetics" />
-                  <classpath refid="maven.compile.classpath" />
-                </java>
-
-                <!-- was testing source compatibility, but with widening change it won't work anymore -->
-                <!--
-                <mkdir dir="target/test-classes/client-on-v2" />
-                <javac release="${maven.compiler.release}" srcdir="src/test/client" destdir="target/test-classes/client-on-v2" includeantruntime="false">
-                  <classpath>
-                    <pathelement path="target/test-classes/v2" />
-                  </classpath>
-                </javac>
-                <java classname="Main" failonerror="true">
-                  <arg value="bar" />
-                  <classpath>
-                    <pathelement path="target/test-classes/v2" />
-                    <pathelement path="target/test-classes/client-on-v2" />
-                  </classpath>
-                </java>
-                -->
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>
@@ -164,5 +67,101 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>${maven-plugin-tools.version}</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <target>
+                <delete dir="target/test-classes" />
+                <mkdir dir="target/test-classes/v1" />
+                <mkdir dir="target/test-classes/v2" />
+                <mkdir dir="target/test-classes/client" />
+                <mkdir dir="target/test-classes/synthetics" />
+
+                <!-- basic sanity. unmodified client and v1 should work as expected -->
+                <javac destdir="target/test-classes/v1" includeantruntime="false" release="${maven.compiler.release}" srcdir="src/test/v1" />
+                <javac classpath="target/test-classes/v1" destdir="target/test-classes/client" includeantruntime="false" release="${maven.compiler.release}" srcdir="src/test/client" />
+                <java classname="Main" failonerror="true">
+                  <arg value="foo" />
+                  <classpath>
+                    <pathelement path="target/test-classes/v1" />
+                    <pathelement path="target/test-classes/client" />
+                  </classpath>
+                </java>
+
+                <!-- compile v2 -->
+                <javac classpath="${maven.compile.classpath}" destdir="target/test-classes/v2" includeantruntime="false" release="${maven.compiler.release}" srcdir="src/test/v2">
+                  <compilerarg value="-XprintProcessorInfo" />
+                  <classpath>
+                    <pathelement path="target/classes" />
+                    <path refid="maven.compile.classpath" />
+                  </classpath>
+                </javac>
+
+                <!-- post process v2 -->
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true">
+                  <arg value="${project.basedir}/target/test-classes/v2" />
+                  <classpath refid="maven.compile.classpath" />
+                </java>
+
+                <!-- verify that unmodified client code continue to work with v2 binary -->
+                <java classname="Main" failonerror="true">
+                  <arg value="bar" />
+                  <classpath>
+                    <pathelement path="target/test-classes/v2" />
+                    <pathelement path="target/test-classes/client" />
+                  </classpath>
+                </java>
+
+                <!-- compile synthetics -->
+                <javac classpath="${maven.compile.classpath}" destdir="target/test-classes/synthetics" includeantruntime="false" release="${maven.compiler.release}" srcdir="src/test/synthetics">
+                  <compilerarg value="-XprintProcessorInfo" />
+                  <classpath>
+                    <pathelement path="target/classes" />
+                    <path refid="maven.compile.classpath" />
+                  </classpath>
+                </javac>
+
+                <!-- post process synthetics -->
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true">
+                  <arg value="${project.basedir}/target/test-classes/synthetics" />
+                  <classpath refid="maven.compile.classpath" />
+                </java>
+
+                <!-- was testing source compatibility, but with widening change it won't work anymore -->
+                <!--
+                <mkdir dir="target/test-classes/client-on-v2" />
+                <javac release="${maven.compiler.release}" srcdir="src/test/client" destdir="target/test-classes/client-on-v2" includeantruntime="false">
+                  <classpath>
+                    <pathelement path="target/test-classes/v2" />
+                  </classpath>
+                </javac>
+                <java classname="Main" failonerror="true">
+                  <arg value="bar" />
+                  <classpath>
+                    <pathelement path="target/test-classes/v2" />
+                    <pathelement path="target/test-classes/client-on-v2" />
+                  </classpath>
+                </java>
+                -->
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
