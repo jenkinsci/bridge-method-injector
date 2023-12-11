@@ -24,24 +24,26 @@
 package com.infradna.tool.bridge_method_injector;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import org.jvnet.hudson.annotation_indexer.Index;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-@Mojo(name = "process", requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.PROCESS_CLASSES, threadSafe = true)
+@Mojo(
+        name = "process",
+        requiresDependencyResolution = ResolutionScope.RUNTIME,
+        defaultPhase = LifecyclePhase.PROCESS_CLASSES,
+        threadSafe = true)
 public class ProcessMojo extends AbstractMojo {
     /**
      * The directory containing generated classes.
@@ -55,13 +57,17 @@ public class ProcessMojo extends AbstractMojo {
             justification = "irrelevant without SecurityManager; user-provided value for running the program")
     public void execute() throws MojoExecutionException {
         try {
-            for (String line : Index.listClassNames(WithBridgeMethods.class, new URLClassLoader(new URL[] {classesDirectory.toURI().toURL()}, ClassLoader.getSystemClassLoader().getParent()))) {
-                File classFile = new File(classesDirectory,line.replace('.','/')+".class");
-                getLog().debug("Processing "+line);
+            for (String line : Index.listClassNames(
+                    WithBridgeMethods.class,
+                    new URLClassLoader(
+                            new URL[] {classesDirectory.toURI().toURL()},
+                            ClassLoader.getSystemClassLoader().getParent()))) {
+                File classFile = new File(classesDirectory, line.replace('.', '/') + ".class");
+                getLog().debug("Processing " + line);
                 new MethodInjector().handle(classFile);
             }
         } catch (IOException e) {
-            throw new MojoExecutionException("Failed to process @WithBridgeMethods",e);
+            throw new MojoExecutionException("Failed to process @WithBridgeMethods", e);
         }
     }
 }

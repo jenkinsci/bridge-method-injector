@@ -35,6 +35,7 @@ import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.POP2;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,9 +43,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -75,10 +73,11 @@ public class MethodInjector {
 
     public void handle(File classFile) throws IOException {
         byte[] image;
-        try (FileInputStream in = new FileInputStream(classFile); BufferedInputStream bis = new BufferedInputStream(in)) {
+        try (FileInputStream in = new FileInputStream(classFile);
+                BufferedInputStream bis = new BufferedInputStream(in)) {
             ClassReader cr = new ClassReader(bis);
-            ClassWriter cw = new ClassWriter(cr,COMPUTE_MAXS);
-            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)),0);
+            ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
+            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)), 0);
             image = cw.toByteArray();
         } catch (AlreadyUpToDate unused) {
             // no need to process this class. it's already up-to-date.
@@ -97,7 +96,7 @@ public class MethodInjector {
      * Thrown to indicate that there's no need to re-process this class file.
      */
     static class AlreadyUpToDate extends RuntimeException {
-      private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
     }
 
     static class ClassAnnotationInjectorImpl extends ClassAnnotationInjector {
@@ -113,40 +112,39 @@ public class MethodInjector {
     }
 
     private static class WithBridgeMethodsAnnotationVisitor extends AnnotationVisitor {
-      protected boolean castRequired = false;
-      protected String adapterMethod = null;
-      protected final List<Type> types = new ArrayList<>();
-      
-      public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
-        super(Opcodes.ASM9, av);
-      }
+        protected boolean castRequired = false;
+        protected String adapterMethod = null;
+        protected final List<Type> types = new ArrayList<>();
 
-      @Override
-      public AnnotationVisitor visitArray(String name) {
-        return new AnnotationVisitor(Opcodes.ASM9, super.visitArray(name)) {
-           
-            @Override
-            public void visit(String name, Object value) {
-                if (value instanceof Type) {
-                  // assume this is a member of the array of classes named "value" in WithBridgeMethods
-                  types.add((Type) value);
+        public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
+            super(Opcodes.ASM9, av);
+        }
+
+        @Override
+        public AnnotationVisitor visitArray(String name) {
+            return new AnnotationVisitor(Opcodes.ASM9, super.visitArray(name)) {
+
+                @Override
+                public void visit(String name, Object value) {
+                    if (value instanceof Type) {
+                        // assume this is a member of the array of classes named "value" in WithBridgeMethods
+                        types.add((Type) value);
+                    }
+                    super.visit(name, value);
                 }
-                super.visit(name, value);
+            };
+        }
+
+        @Override
+        public void visit(String name, Object value) {
+            if ("castRequired".equals(name) && value instanceof Boolean) {
+                castRequired = (Boolean) value;
             }
-
-        };
-      }
-
-      @Override
-      public void visit(String name, Object value) {
-        if ("castRequired".equals(name) && value instanceof Boolean) {
-          castRequired = (Boolean) value;
+            if ("adapterMethod".equals(name) && value instanceof String) {
+                adapterMethod = (String) value;
+            }
+            super.visit(name, value);
         }
-        if ("adapterMethod".equals(name) && value instanceof String) {
-          adapterMethod = (String) value;
-        }
-        super.visit(name, value);
-      }
     }
 
     static class Transformer extends ClassVisitor {
@@ -174,7 +172,15 @@ public class MethodInjector {
              */
             final Type originalReturnType;
 
-            SyntheticMethod(int access, String name, String desc, String originalSignature, String[] exceptions, Type returnType, boolean castRequired, String adapterMethod) {
+            SyntheticMethod(
+                    int access,
+                    String name,
+                    String desc,
+                    String originalSignature,
+                    String[] exceptions,
+                    Type returnType,
+                    boolean castRequired,
+                    String adapterMethod) {
                 this.access = access;
                 this.name = name;
                 this.desc = desc;
@@ -194,9 +200,9 @@ public class MethodInjector {
 
                 int access = this.access | ACC_SYNTHETIC | ACC_BRIDGE;
                 String methodDescriptor = Type.getMethodDescriptor(returnType, paramTypes);
-                MethodVisitor mv = cv.visitMethod(access, name,
-                        methodDescriptor, null/*TODO:is this really correct?*/, exceptions);
-                if ((access&ACC_ABSTRACT)==0) {
+                MethodVisitor mv = cv.visitMethod(
+                        access, name, methodDescriptor, null /*TODO:is this really correct?*/, exceptions);
+                if ((access & ACC_ABSTRACT) == 0) {
                     GeneratorAdapter ga = new GeneratorAdapter(mv, access, name, methodDescriptor);
                     mv.visitCode();
 
@@ -221,49 +227,52 @@ public class MethodInjector {
                     }
                     sz += argpos;
 
-                    mv.visitMethodInsn(
-                      isStatic ? INVOKESTATIC : INVOKEVIRTUAL,internalClassName,name,desc,false);
+                    mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL, internalClassName, name, desc, false);
                     if (hasAdapterMethod()) {
                         insertAdapterMethod(ga);
-                    } else
-                    if (castRequired || returnType.equals(Type.VOID_TYPE)) {
+                    } else if (castRequired || returnType.equals(Type.VOID_TYPE)) {
                         ga.unbox(returnType);
                     } else {
                         ga.box(originalReturnType);
                     }
-                    if (returnType.equals(Type.VOID_TYPE) || returnType.getClassName().equals("java.lang.Void")) {
+                    if (returnType.equals(Type.VOID_TYPE)
+                            || returnType.getClassName().equals("java.lang.Void")) {
                         // bridge to void, which means disregard the return value from the original method
                         switch (originalReturnType.getSize()) {
-                        case 0:
-                            throw new IllegalArgumentException("Cannot bridge " + name + " from void to void; did you mean to use a different type?");
-                        case 1:
-                            mv.visitInsn(POP);
-                            break;
-                        case 2:
-                            mv.visitInsn(POP2);
-                            break;
-                        default:
-                            throw new AssertionError("Unexpected operand size: "+originalReturnType);
+                            case 0:
+                                throw new IllegalArgumentException("Cannot bridge " + name
+                                        + " from void to void; did you mean to use a different type?");
+                            case 1:
+                                mv.visitInsn(POP);
+                                break;
+                            case 2:
+                                mv.visitInsn(POP2);
+                                break;
+                            default:
+                                throw new AssertionError("Unexpected operand size: " + originalReturnType);
                         }
                     }
                     mv.visitInsn(returnType.getOpcode(IRETURN));
-                    mv.visitMaxs(sz,0);
+                    mv.visitMaxs(sz, 0);
                 }
                 mv.visitEnd();
             }
 
             private boolean hasAdapterMethod() {
-                return adapterMethod!=null && adapterMethod.length()>0;
+                return adapterMethod != null && adapterMethod.length() > 0;
             }
 
             private void insertAdapterMethod(GeneratorAdapter ga) {
                 ga.push(returnType);
-                ga.visitMethodInsn(INVOKEVIRTUAL, internalClassName, adapterMethod,
+                ga.visitMethodInsn(
+                        INVOKEVIRTUAL,
+                        internalClassName,
+                        adapterMethod,
                         Type.getMethodDescriptor(
                                 Type.getType(Object.class), // return type
                                 originalReturnType,
-                                Type.getType(Class.class)
-                        ), false);
+                                Type.getType(Class.class)),
+                        false);
                 ga.unbox(returnType);
             }
         }
@@ -273,7 +282,8 @@ public class MethodInjector {
         }
 
         @Override
-        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        public void visit(
+                int version, int access, String name, String signature, String superName, String[] interfaces) {
             this.internalClassName = name;
             super.visit(version, access, name, signature, superName, interfaces);
         }
@@ -281,7 +291,7 @@ public class MethodInjector {
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             if (desc.equals(SYNTHETIC_METHODS_ADDED)) {
-                throw new AlreadyUpToDate();    // no need to process this class
+                throw new AlreadyUpToDate(); // no need to process this class
             }
             return super.visitAnnotation(desc, visible);
         }
@@ -290,7 +300,12 @@ public class MethodInjector {
          * Look for methods annotated with {@link WithBridgeMethods}.
          */
         @Override
-        public MethodVisitor visitMethod(final int access, final String name, final String mdesc, final String signature, final String[] exceptions) {
+        public MethodVisitor visitMethod(
+                final int access,
+                final String name,
+                final String mdesc,
+                final String signature,
+                final String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, mdesc, signature, exceptions);
             return new MethodVisitor(Opcodes.ASM9, mv) {
                 @Override
@@ -298,14 +313,20 @@ public class MethodInjector {
                     AnnotationVisitor av = super.visitAnnotation(adesc, visible);
                     if (adesc.equals(WITH_SYNTHETIC_METHODS) && (access & ACC_SYNTHETIC) == 0) {
                         return new WithBridgeMethodsAnnotationVisitor(av) {
-                        
+
                             @Override
                             public void visitEnd() {
-                                super.visitEnd(); 
+                                super.visitEnd();
                                 for (Type type : this.types) {
                                     syntheticMethods.add(new SyntheticMethod(
-                                         access,name,mdesc,signature,exceptions,type, this.castRequired, this.adapterMethod
-                                    ));
+                                            access,
+                                            name,
+                                            mdesc,
+                                            signature,
+                                            exceptions,
+                                            type,
+                                            this.castRequired,
+                                            this.adapterMethod));
                                 }
                             }
                         };
