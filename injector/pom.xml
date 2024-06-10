@@ -97,7 +97,8 @@
                 <!-- basic sanity. unmodified client and v1 should work as expected -->
                 <javac destdir="target/test-classes/v1" includeantruntime="false" release="${maven.compiler.release}" srcdir="src/test/v1" />
                 <javac classpath="target/test-classes/v1" destdir="target/test-classes/client" includeantruntime="false" release="${maven.compiler.release}" srcdir="src/test/client" />
-                <java classname="Main" failonerror="true">
+                <java classname="Main" failonerror="true" fork="true">
+                  <sysproperty key="java.security.manager" value="allow" />
                   <arg value="foo" />
                   <classpath>
                     <pathelement path="target/test-classes/v1" />
@@ -115,13 +116,15 @@
                 </javac>
 
                 <!-- post process v2 -->
-                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true">
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true" fork="true">
+                  <sysproperty key="java.security.manager" value="allow" />
                   <arg value="${project.basedir}/target/test-classes/v2" />
                   <classpath refid="maven.compile.classpath" />
                 </java>
 
                 <!-- verify that unmodified client code continue to work with v2 binary -->
-                <java classname="Main" failonerror="true">
+                <java classname="Main" failonerror="true" fork="true">
+                  <sysproperty key="java.security.manager" value="allow" />
                   <arg value="bar" />
                   <classpath>
                     <pathelement path="target/test-classes/v2" />
@@ -139,7 +142,8 @@
                 </javac>
 
                 <!-- post process synthetics -->
-                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true">
+                <java classname="com.infradna.tool.bridge_method_injector.MethodInjector" failonerror="true" fork="true">
+                  <sysproperty key="java.security.manager" value="allow" />
                   <arg value="${project.basedir}/target/test-classes/synthetics" />
                   <classpath refid="maven.compile.classpath" />
                 </java>
@@ -152,7 +156,8 @@
                     <pathelement path="target/test-classes/v2" />
                   </classpath>
                 </javac>
-                <java classname="Main" failonerror="true">
+                <java classname="Main" failonerror="true" fork="true">
+                  <sysproperty key="java.security.manager" value="allow" />
                   <arg value="bar" />
                   <classpath>
                     <pathelement path="target/test-classes/v2" />
