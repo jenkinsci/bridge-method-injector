@@ -52,9 +52,7 @@ public class ProcessMojo extends AbstractMojo {
     private File classesDirectory;
 
     @Override
-    @SuppressFBWarnings(
-            value = {"DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED", "PATH_TRAVERSAL_IN"},
-            justification = "irrelevant without SecurityManager; user-provided value for running the program")
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "user-provided value for running the program")
     public void execute() throws MojoExecutionException {
         try {
             for (String line : Index.listClassNames(
