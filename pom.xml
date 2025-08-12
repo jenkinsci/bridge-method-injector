@@ -10,7 +10,7 @@
 
   <groupId>io.jenkins.tools</groupId>
   <artifactId>bridge-method-injector-parent</artifactId>
-  <version>1.32</version>
+  <version>1.33-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Bridge Method Injection Parent POM</name>
   <description>Evolve your classes without breaking compatibility</description>
@@ -39,7 +39,7 @@
   <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
     <connection>scm:git:https://github.com/jenkinsci/bridge-method-injector.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/bridge-method-injector.git</developerConnection>
-    <tag>bridge-method-injector-parent-1.32</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/jenkinsci/bridge-method-injector</url>
   </scm>
 

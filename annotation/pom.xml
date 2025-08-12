@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jenkins.tools</groupId>
     <artifactId>bridge-method-injector-parent</artifactId>
-    <version>1.32</version>
+    <version>1.33-SNAPSHOT</version>
   </parent>
   <artifactId>bridge-method-annotation</artifactId>
   <name>Bridge method injection annotations</name>
