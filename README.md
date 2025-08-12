@@ -163,7 +163,7 @@ this like a regular library dependency)
 
 ```xml
 <dependency>
-  <groupId>com.infradna.tool</groupId>
+  <groupId>io.jenkins.tools</groupId>
   <artifactId>bridge-method-annotation</artifactId>
   <version>1.25</version>
 </dependency>
@@ -175,7 +175,7 @@ Then put the following fragment in your build to have the byte-code post process
 <build>
 <plugins>
   <plugin>
-    <groupId>com.infradna.tool</groupId>
+    <groupId>io.jenkins.tools</groupId>
     <artifactId>bridge-method-injector</artifactId>
     <version>1.25</version>
     <executions>

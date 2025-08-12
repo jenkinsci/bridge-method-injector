@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.infradna.tool</groupId>
+    <groupId>io.jenkins.tools</groupId>
     <artifactId>bridge-method-injector-parent</artifactId>
-    <version>${revision}${changelist}</version>
+    <version>1.32-SNAPSHOT</version>
   </parent>
 
   <artifactId>bridge-method-injector</artifactId>
@@ -31,6 +31,7 @@
     <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
+      <version>4.9.4</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -64,6 +65,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
