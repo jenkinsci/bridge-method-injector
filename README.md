@@ -140,20 +140,9 @@ See the Javadoc for more details:
 - [`bridge-method-annotation`](https://javadoc.jenkins.io/component/bridge-method-annotation/)
 - [`bridge-method-injector`](https://javadoc.jenkins.io/component/bridge-method-injector/)
 
-## Maven repository
-
-Starting with 1.25, this library is published at:
-
-```xml
-<repository>
-  <id>repo.jenkins-ci.org</id>
-  <url>https://repo.jenkins-ci.org/releases/</url>
-</repository>
-```
-
 ## Java support
 
-Starting with 1.25, this library requires Java 11 or newer.
+This library requires Java 17 or newer.
 
 ## Integration into your build
 
@@ -165,7 +154,7 @@ this like a regular library dependency)
 <dependency>
   <groupId>io.jenkins.tools</groupId>
   <artifactId>bridge-method-annotation</artifactId>
-  <version>1.25</version>
+  <version>1.32</version>
 </dependency>
 ```
 
@@ -177,7 +166,7 @@ Then put the following fragment in your build to have the byte-code post process
   <plugin>
     <groupId>io.jenkins.tools</groupId>
     <artifactId>bridge-method-injector</artifactId>
-    <version>1.25</version>
+    <version>1.32</version>
     <executions>
       <execution>
         <goals>
