@@ -43,10 +43,6 @@
     <url>https://github.com/jenkinsci/bridge-method-injector</url>
   </scm>
 
-  <properties>
-    <spotless.check.skip>false</spotless.check.skip>
-  </properties>
-
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
