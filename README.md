@@ -148,7 +148,8 @@ This library requires Java 17 or newer.
 
 Add the following dependency in your POM. (This dependency is not needed at runtime, but it is necessary
 for compilation of source code that transitively depend on this, so it is the simplest to just treat
-this like a regular library dependency)
+this like a regular library dependency. Alternatively declare it as `<optional>true</optional>` to 
+prevent it from being present at runtime.)
 
 ```xml
 <dependency>
@@ -156,6 +157,13 @@ this like a regular library dependency)
   <artifactId>bridge-method-annotation</artifactId>
   <version>1.32</version>
 </dependency>
+```
+
+List all classes containing methods you annotated with `@WithBridgeMethods` in a
+`META-INF/services/annotations/com.infradna.tool.bridge_method_injector.WithBridgeMethods` file, for example:
+
+```
+org.acme.Foo
 ```
 
 Then put the following fragment in your build to have the byte-code post processor kick in to inject the necessary bridge methods.
