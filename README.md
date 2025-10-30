@@ -159,13 +159,6 @@ prevent it from being present at runtime.)
 </dependency>
 ```
 
-List all classes containing methods you annotated with `@WithBridgeMethods` in a
-`META-INF/services/annotations/com.infradna.tool.bridge_method_injector.WithBridgeMethods` file, for example:
-
-```
-org.acme.Foo
-```
-
 Then put the following fragment in your build to have the byte-code post processor kick in to inject the necessary bridge methods.
 
 ```xml
@@ -185,4 +178,25 @@ Then put the following fragment in your build to have the byte-code post process
   </plugin>
 </plugins>
 </build>
+```
+
+In case you list annotation processors explicitly in your `maven-compiler-plugin` configuration (mandatory as of JDK 25),
+ensure to include `org.jenkins-ci:annotation-indexer` as well, as it is a prerequisite for the `bridge-method-injector`
+Maven plugin to detect classes with `@WithBridgeMethods` annotations.
+
+```xml
+<plugin>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <!-- ... -->
+    <annotationProcessorPaths>
+      <!-- ... -->
+      <path>
+        <groupId>org.jenkins-ci</groupId>
+        <artifactId>annotation-indexer</artifactId>
+        <version>1.18</version>
+      </path>
+    </annotationProcessorPaths>
+  </configuration>
+</plugin>
 ```
