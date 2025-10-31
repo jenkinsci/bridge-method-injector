@@ -76,5 +76,7 @@ public class Main {
 
         String u = f.adapter();
         assertEquals("http://example.com/", u);
+
+        f.stripAbstract();
     }
 }

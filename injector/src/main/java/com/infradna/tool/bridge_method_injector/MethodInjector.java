@@ -29,6 +29,7 @@ import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
@@ -114,6 +115,7 @@ public class MethodInjector {
     private static class WithBridgeMethodsAnnotationVisitor extends AnnotationVisitor {
         protected boolean castRequired = false;
         protected String adapterMethod = null;
+        protected boolean stripAbstract = false;
         protected final List<Type> types = new ArrayList<>();
 
         public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
@@ -143,6 +145,9 @@ public class MethodInjector {
             if ("adapterMethod".equals(name) && value instanceof String) {
                 adapterMethod = (String) value;
             }
+            if ("stripAbstract".equals(name) && value instanceof Boolean) {
+                stripAbstract = (Boolean) value;
+            }
             super.visit(name, value);
         }
     }
@@ -162,6 +167,7 @@ public class MethodInjector {
             final String[] exceptions;
             final boolean castRequired;
             final String adapterMethod;
+            final boolean stripAbstract;
 
             /**
              * Return type of the bridge method to be inserted.
@@ -180,7 +186,8 @@ public class MethodInjector {
                     String[] exceptions,
                     Type returnType,
                     boolean castRequired,
-                    String adapterMethod) {
+                    String adapterMethod,
+                    boolean stripAbstract) {
                 this.access = access;
                 this.name = name;
                 this.desc = desc;
@@ -189,6 +196,7 @@ public class MethodInjector {
                 this.returnType = returnType;
                 this.castRequired = castRequired;
                 this.adapterMethod = adapterMethod;
+                this.stripAbstract = stripAbstract;
                 originalReturnType = Type.getReturnType(desc);
             }
 
@@ -199,6 +207,11 @@ public class MethodInjector {
                 Type[] paramTypes = Type.getArgumentTypes(desc);
 
                 int access = this.access | ACC_SYNTHETIC | ACC_BRIDGE;
+                boolean isInterface = false;
+                if (stripAbstract && (access & ACC_ABSTRACT) != 0) {
+                    access &= ~ACC_ABSTRACT;
+                    isInterface = true;
+                }
                 String methodDescriptor = Type.getMethodDescriptor(returnType, paramTypes);
                 MethodVisitor mv = cv.visitMethod(
                         access, name, methodDescriptor, null /*TODO:is this really correct?*/, exceptions);
@@ -227,7 +240,16 @@ public class MethodInjector {
                     }
                     sz += argpos;
 
-                    mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL, internalClassName, name, desc, false);
+                    int opcode;
+                    if (isStatic) {
+                        opcode = INVOKESTATIC;
+                    } else if (isInterface) {
+                        opcode = INVOKEINTERFACE; // TODO check abstract classes
+                    } else {
+                        opcode = INVOKEVIRTUAL;
+                    }
+
+                    mv.visitMethodInsn(opcode, internalClassName, name, desc, isInterface);
                     if (hasAdapterMethod()) {
                         insertAdapterMethod(ga);
                     } else if (castRequired || returnType.equals(Type.VOID_TYPE)) {
@@ -326,7 +348,8 @@ public class MethodInjector {
                                             exceptions,
                                             type,
                                             this.castRequired,
-                                            this.adapterMethod));
+                                            this.adapterMethod,
+                                            this.stripAbstract));
                                 }
                             }
                         };

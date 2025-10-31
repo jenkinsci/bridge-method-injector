@@ -8,4 +8,6 @@ public interface IBar {
     String narrow();
     @WithBridgeMethods(String.class)
     URL adapter();
+    @WithBridgeMethods(value=void.class,stripAbstract=true)
+    Object stripAbstract();
 }
