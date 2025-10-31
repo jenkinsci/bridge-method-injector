@@ -180,7 +180,7 @@ Then put the following fragment in your build to have the byte-code post process
 </build>
 ```
 
-In case you list annotation processors explicitly in your `maven-compiler-plugin` configuration (mandatory as of JDK 25),
+In case you list annotation processors paths explicitly in your `maven-compiler-plugin` configuration (required as of JDK 23),
 ensure to include `org.jenkins-ci:annotation-indexer` as well, as it is a prerequisite for the `bridge-method-injector`
 Maven plugin to detect classes with `@WithBridgeMethods` annotations.
 
