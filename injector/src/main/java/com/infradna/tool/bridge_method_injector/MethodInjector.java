@@ -26,6 +26,7 @@ package com.infradna.tool.bridge_method_injector;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
+import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
@@ -78,7 +79,7 @@ public class MethodInjector {
                 BufferedInputStream bis = new BufferedInputStream(in)) {
             ClassReader cr = new ClassReader(bis);
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
-            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)), 0);
+            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw), cr.getAccess()), 0);
             image = cw.toByteArray();
         } catch (AlreadyUpToDate unused) {
             // no need to process this class. it's already up-to-date.
@@ -154,6 +155,7 @@ public class MethodInjector {
 
     static class Transformer extends ClassVisitor {
         private String internalClassName;
+        private final boolean isInterface;
         /**
          * Synthetic methods to be generated.
          */
@@ -207,10 +209,8 @@ public class MethodInjector {
                 Type[] paramTypes = Type.getArgumentTypes(desc);
 
                 int access = this.access | ACC_SYNTHETIC | ACC_BRIDGE;
-                boolean isInterface = false;
                 if (stripAbstract && (access & ACC_ABSTRACT) != 0) {
                     access &= ~ACC_ABSTRACT;
-                    isInterface = true;
                 }
                 String methodDescriptor = Type.getMethodDescriptor(returnType, paramTypes);
                 MethodVisitor mv = cv.visitMethod(
@@ -244,14 +244,14 @@ public class MethodInjector {
                     if (isStatic) {
                         opcode = INVOKESTATIC;
                     } else if (isInterface) {
-                        opcode = INVOKEINTERFACE; // TODO check abstract classes
+                        opcode = INVOKEINTERFACE;
                     } else {
                         opcode = INVOKEVIRTUAL;
                     }
 
                     mv.visitMethodInsn(opcode, internalClassName, name, desc, isInterface);
                     if (hasAdapterMethod()) {
-                        insertAdapterMethod(ga, isInterface);
+                        insertAdapterMethod(ga);
                     } else if (castRequired || returnType.equals(Type.VOID_TYPE)) {
                         ga.unbox(returnType);
                     } else {
@@ -284,7 +284,7 @@ public class MethodInjector {
                 return adapterMethod != null && adapterMethod.length() > 0;
             }
 
-            private void insertAdapterMethod(GeneratorAdapter ga, boolean isInterface) {
+            private void insertAdapterMethod(GeneratorAdapter ga) {
                 ga.push(returnType);
                 ga.visitMethodInsn(
                         isInterface ? INVOKEINTERFACE : INVOKEVIRTUAL,
@@ -299,8 +299,9 @@ public class MethodInjector {
             }
         }
 
-        Transformer(ClassVisitor cv) {
+        Transformer(ClassVisitor cv, int access) {
             super(Opcodes.ASM9, cv);
+            this.isInterface = (access & ACC_INTERFACE) != 0;
         }
 
         @Override
