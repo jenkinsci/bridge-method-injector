@@ -10,4 +10,10 @@ public interface IBar {
     URL adapter();
     @WithBridgeMethods(value=void.class,stripAbstract=true)
     Object stripAbstract();
+    @WithBridgeMethods(value=String.class,stripAbstract=true,adapterMethod="convertInAbstract")
+    URL adapterInAbstract();
+
+    private Object convertInAbstract(URL url, Class<?> type) {
+        return url.toString();
+    }
 }

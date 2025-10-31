@@ -3,4 +3,5 @@ public interface IBar {
     Object narrow();
     String adapter();
     void stripAbstract();
+    String adapterInAbstract();
 }

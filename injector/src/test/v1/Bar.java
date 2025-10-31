@@ -3,4 +3,5 @@ public class Bar implements IBar {
     public Object narrow() { return "foo"; }
     public String adapter() { return "http://example.com/"; }
     public void stripAbstract() { }
+    public String adapterInAbstract() { return adapter(); }
 }

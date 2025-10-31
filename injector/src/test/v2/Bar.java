@@ -19,9 +19,14 @@ public class Bar implements IBar {
         }
     }
 
-    public Object stripAbstract() {  return new Object(); }
-
     private Object convert(URL url, Class<?> type) {
         return url.toString();
     }
+
+    public Object stripAbstract() {  return new Object(); }
+
+    public URL adapterInAbstract() {
+        return adapter();
+    }
+
 }

@@ -251,7 +251,7 @@ public class MethodInjector {
 
                     mv.visitMethodInsn(opcode, internalClassName, name, desc, isInterface);
                     if (hasAdapterMethod()) {
-                        insertAdapterMethod(ga);
+                        insertAdapterMethod(ga, isInterface);
                     } else if (castRequired || returnType.equals(Type.VOID_TYPE)) {
                         ga.unbox(returnType);
                     } else {
@@ -284,17 +284,17 @@ public class MethodInjector {
                 return adapterMethod != null && adapterMethod.length() > 0;
             }
 
-            private void insertAdapterMethod(GeneratorAdapter ga) {
+            private void insertAdapterMethod(GeneratorAdapter ga, boolean isInterface) {
                 ga.push(returnType);
                 ga.visitMethodInsn(
-                        INVOKEVIRTUAL,
+                        isInterface ? INVOKEINTERFACE : INVOKEVIRTUAL,
                         internalClassName,
                         adapterMethod,
                         Type.getMethodDescriptor(
                                 Type.getType(Object.class), // return type
                                 originalReturnType,
                                 Type.getType(Class.class)),
-                        false);
+                        isInterface);
                 ga.unbox(returnType);
             }
         }
