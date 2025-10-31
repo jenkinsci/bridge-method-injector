@@ -1,4 +1,4 @@
-public class Bar implements IBar {
+public class Abs extends IAbs {
     public String widen()  { return "foo"; }
     public Object narrow() { return "foo"; }
     public String adapter() { return "http://example.com/"; }
