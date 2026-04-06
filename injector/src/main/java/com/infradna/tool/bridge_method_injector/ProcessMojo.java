@@ -52,7 +52,6 @@ public class ProcessMojo extends AbstractMojo {
     private File classesDirectory;
 
     @Override
-    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "user-provided value for running the program")
     public void execute() throws MojoExecutionException {
         try {
             for (String line : Index.listClassNames(
