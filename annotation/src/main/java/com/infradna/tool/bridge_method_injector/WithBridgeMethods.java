@@ -129,4 +129,16 @@ public @interface WithBridgeMethods {
      * @since 1.14
      */
     String adapterMethod() default "";
+
+    /**
+     * Specifies whether the injected bridge method should be a non abstract method,
+     * even if the annotated method is abstract. This simplifies injection of bridge methods
+     * for interface methods or abstract methods, as implementing classes or subclasses
+     * don't have to repeat the {@link WithBridgeMethods} annotation. It also enables referencing
+     * adapter methods (see {@link #adapterMethod()}) that are implemented within the interface
+     * or abstract class itself.
+     *
+     * @since 1.33
+     */
+    boolean stripAbstract() default false;
 }

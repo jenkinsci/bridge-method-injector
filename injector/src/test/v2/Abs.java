@@ -3,7 +3,7 @@ import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class Bar implements IBar {
+public class Abs extends IAbs {
     @WithBridgeMethods(value = String.class, castRequired = true)
     public Object widen()  { return "bar"; }
 
