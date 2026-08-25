@@ -26,9 +26,11 @@ package com.infradna.tool.bridge_method_injector;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_BRIDGE;
+import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
@@ -77,7 +79,7 @@ public class MethodInjector {
                 BufferedInputStream bis = new BufferedInputStream(in)) {
             ClassReader cr = new ClassReader(bis);
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS);
-            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw)), 0);
+            cr.accept(new Transformer(new ClassAnnotationInjectorImpl(cw), cr.getAccess()), 0);
             image = cw.toByteArray();
         } catch (AlreadyUpToDate unused) {
             // no need to process this class. it's already up-to-date.
@@ -114,6 +116,7 @@ public class MethodInjector {
     private static class WithBridgeMethodsAnnotationVisitor extends AnnotationVisitor {
         protected boolean castRequired = false;
         protected String adapterMethod = null;
+        protected boolean stripAbstract = false;
         protected final List<Type> types = new ArrayList<>();
 
         public WithBridgeMethodsAnnotationVisitor(AnnotationVisitor av) {
@@ -143,12 +146,16 @@ public class MethodInjector {
             if ("adapterMethod".equals(name) && value instanceof String) {
                 adapterMethod = (String) value;
             }
+            if ("stripAbstract".equals(name) && value instanceof Boolean) {
+                stripAbstract = (Boolean) value;
+            }
             super.visit(name, value);
         }
     }
 
     static class Transformer extends ClassVisitor {
         private String internalClassName;
+        private final boolean isInterface;
         /**
          * Synthetic methods to be generated.
          */
@@ -162,6 +169,7 @@ public class MethodInjector {
             final String[] exceptions;
             final boolean castRequired;
             final String adapterMethod;
+            final boolean stripAbstract;
 
             /**
              * Return type of the bridge method to be inserted.
@@ -180,7 +188,8 @@ public class MethodInjector {
                     String[] exceptions,
                     Type returnType,
                     boolean castRequired,
-                    String adapterMethod) {
+                    String adapterMethod,
+                    boolean stripAbstract) {
                 this.access = access;
                 this.name = name;
                 this.desc = desc;
@@ -189,6 +198,7 @@ public class MethodInjector {
                 this.returnType = returnType;
                 this.castRequired = castRequired;
                 this.adapterMethod = adapterMethod;
+                this.stripAbstract = stripAbstract;
                 originalReturnType = Type.getReturnType(desc);
             }
 
@@ -199,6 +209,9 @@ public class MethodInjector {
                 Type[] paramTypes = Type.getArgumentTypes(desc);
 
                 int access = this.access | ACC_SYNTHETIC | ACC_BRIDGE;
+                if (stripAbstract && (access & ACC_ABSTRACT) != 0) {
+                    access &= ~ACC_ABSTRACT;
+                }
                 String methodDescriptor = Type.getMethodDescriptor(returnType, paramTypes);
                 MethodVisitor mv = cv.visitMethod(
                         access, name, methodDescriptor, null /*TODO:is this really correct?*/, exceptions);
@@ -227,7 +240,16 @@ public class MethodInjector {
                     }
                     sz += argpos;
 
-                    mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL, internalClassName, name, desc, false);
+                    int opcode;
+                    if (isStatic) {
+                        opcode = INVOKESTATIC;
+                    } else if (isInterface) {
+                        opcode = INVOKEINTERFACE;
+                    } else {
+                        opcode = INVOKEVIRTUAL;
+                    }
+
+                    mv.visitMethodInsn(opcode, internalClassName, name, desc, isInterface);
                     if (hasAdapterMethod()) {
                         insertAdapterMethod(ga);
                     } else if (castRequired || returnType.equals(Type.VOID_TYPE)) {
@@ -265,20 +287,21 @@ public class MethodInjector {
             private void insertAdapterMethod(GeneratorAdapter ga) {
                 ga.push(returnType);
                 ga.visitMethodInsn(
-                        INVOKEVIRTUAL,
+                        isInterface ? INVOKEINTERFACE : INVOKEVIRTUAL,
                         internalClassName,
                         adapterMethod,
                         Type.getMethodDescriptor(
                                 Type.getType(Object.class), // return type
                                 originalReturnType,
                                 Type.getType(Class.class)),
-                        false);
+                        isInterface);
                 ga.unbox(returnType);
             }
         }
 
-        Transformer(ClassVisitor cv) {
+        Transformer(ClassVisitor cv, int access) {
             super(Opcodes.ASM9, cv);
+            this.isInterface = (access & ACC_INTERFACE) != 0;
         }
 
         @Override
@@ -326,7 +349,8 @@ public class MethodInjector {
                                             exceptions,
                                             type,
                                             this.castRequired,
-                                            this.adapterMethod));
+                                            this.adapterMethod,
+                                            this.stripAbstract));
                                 }
                             }
                         };

@@ -127,12 +127,16 @@ It cannot be a static method.
 
 ## Bridge methods and interfaces
 
-You can use `@WithBridgeMethods` with interfaces, too. However, making this work correctly is tricky,
+You can use `@WithBridgeMethods` with interfaces, too. The simples solution is to make the bridge method
+on the interface an actual method, instead of an abstract one. To achieve this set `stripAbstract` to `true`.
+
+Alternatively you can keep the bridge method abstract. However, making this work correctly is tricky,
 as you have to ensure that bridge methods are implemented on all the classes that implement the interface,
 for example by adding `@WithBridgeMethods` on every implementation of the method in question,
 or by introducing a base class that provides a bridge method.
 
-For adapter methods, the bridge method annotation on the interface does not need to declare the
+For adapter methods, the bridge method annotation on the interface can declare the adapter method
+directly when `stripAbstract` is used. If `stripAbstract` is not used, it does not need to declare the
 adapter method, but the bridge method annotation on the implementation does.
 
 See the Javadoc for more details:
