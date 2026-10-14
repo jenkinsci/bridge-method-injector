@@ -148,7 +148,8 @@ This library requires Java 17 or newer.
 
 Add the following dependency in your POM. (This dependency is not needed at runtime, but it is necessary
 for compilation of source code that transitively depend on this, so it is the simplest to just treat
-this like a regular library dependency)
+this like a regular library dependency. Alternatively declare it as `<optional>true</optional>` to 
+prevent it from being present at runtime.)
 
 ```xml
 <dependency>
@@ -177,4 +178,25 @@ Then put the following fragment in your build to have the byte-code post process
   </plugin>
 </plugins>
 </build>
+```
+
+In case you list annotation processors paths explicitly in your `maven-compiler-plugin` configuration (required as of JDK 23),
+ensure to include `org.jenkins-ci:annotation-indexer` as well, as it is a prerequisite for the `bridge-method-injector`
+Maven plugin to detect classes with `@WithBridgeMethods` annotations.
+
+```xml
+<plugin>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <!-- ... -->
+    <annotationProcessorPaths>
+      <!-- ... -->
+      <path>
+        <groupId>org.jenkins-ci</groupId>
+        <artifactId>annotation-indexer</artifactId>
+        <version>1.18</version>
+      </path>
+    </annotationProcessorPaths>
+  </configuration>
+</plugin>
 ```
