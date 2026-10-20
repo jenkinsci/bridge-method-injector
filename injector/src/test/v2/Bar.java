@@ -22,4 +22,11 @@ public class Bar implements IBar {
     private Object convert(URL url, Class<?> type) {
         return url.toString();
     }
+
+    public Object stripAbstract() {  return new Object(); }
+
+    public URL adapterInAbstract() {
+        return adapter();
+    }
+
 }
